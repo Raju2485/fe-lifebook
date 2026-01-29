@@ -1,0 +1,20 @@
+@use './variables.scss' as *;
+
+* {
+  box-sizing: border-box
+}
+
+body {
+  background: $body-background-color;
+  font-family: $font-stack;
+}
+
+h1 {
+    color: $accent;
+    border: 5px solid $accent;
+} 
+
+h2 {
+  color: $primary-color;
+  border: 5px solid $accent;
+}   

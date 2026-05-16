@@ -1,7 +1,8 @@
-import './assets/styles/main.scss';
+import './assets/styles/main.scss'
+import { Login } from './pages/Login'
 
 function App() {
-  return <h1>Welcome to Lifebook!</h1>
+  return <Login />
 }
 
 export default App

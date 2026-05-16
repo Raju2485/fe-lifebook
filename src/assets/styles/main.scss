@@ -1,7 +1,7 @@
 @use './variables.scss' as *;
 
 * {
-  box-sizing: border-box
+  box-sizing: border-box;
 }
 
 body {
@@ -10,11 +10,11 @@ body {
 }
 
 h1 {
-    color: $accent;
-    border: 5px solid $accent;
-} 
+  color: $accent;
+  border: 5px solid $accent;
+}
 
 h2 {
   color: $primary-color;
   border: 5px solid $accent;
-}   
+}

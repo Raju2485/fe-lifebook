@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Checkbox, Form, Input, Typography, message } from 'antd'
+import { Button, Checkbox, Form, Input, Typography } from 'antd'
 import { useSigninMutation } from '../services/apiSlice'
 import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage'
+import { setFlashMessage } from '../../../utils/flashMessage'
+import { useShowMessage } from '../../../hooks/useShowMessage.jsx'
 
 const Signin = () => {
   const [signin] = useSigninMutation()
-  const [messageApi, contextHolder] = message.useMessage()
+  const { showMessage } = useShowMessage()
 
   const navigate = useNavigate()
 
@@ -17,18 +19,9 @@ const Signin = () => {
     }
   }, [navigate])
 
-  const showMessage = ({ type, content }) => {
-    messageApi.open({
-      type,
-      content,
-    })
-  }
-
   const onFinish = async (values) => {
     try {
       const res = await signin(values).unwrap()
-      // showing success message
-      showMessage({ type: 'success', content: res?.msg ?? '' })
 
       // storing user information in local storage
       const user = res?.accessToken
@@ -41,6 +34,7 @@ const Signin = () => {
       if (user) {
         setLocalStorage('user', user)
         setLocalStorage('userDetails', res?.user_details ?? false)
+        setFlashMessage({ type: 'success', content: res?.msg ?? '' })
         navigate('/home', { replace: true })
       }
     } catch (err) {
@@ -58,7 +52,6 @@ const Signin = () => {
 
   return (
     <div>
-      {contextHolder}
       <Form
         name="basic"
         labelCol={{ span: 8 }}

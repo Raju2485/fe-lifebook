@@ -1,9 +1,8 @@
-import { createContext, useCallback, useContext, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { message } from 'antd'
 import { consumeFlashMessage } from '../utils/flashMessage'
-
-const MessageContext = createContext(null)
+import { MessageContext } from './messageContext'
 
 export function MessageProvider({ children }) {
   const [messageApi, contextHolder] = message.useMessage()
@@ -31,12 +30,4 @@ export function MessageProvider({ children }) {
       {children}
     </MessageContext.Provider>
   )
-}
-
-export const useShowMessage = () => {
-  const context = useContext(MessageContext)
-  if (!context) {
-    throw new Error('useShowMessage must be used within MessageProvider')
-  }
-  return context
 }

@@ -4,7 +4,7 @@ import { Button, Checkbox, Form, Input, Typography } from 'antd'
 import { useSigninMutation } from '../services/apiSlice'
 import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage'
 import { setFlashMessage } from '../../../utils/flashMessage'
-import { useShowMessage } from '../../../hooks/useShowMessage.jsx'
+import { useShowMessage } from '../../../hooks/useShowMessage.js'
 
 const Signin = () => {
   const [signin] = useSigninMutation()

@@ -1,6 +1,6 @@
 import './assets/styles/main.scss'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { MessageProvider } from './hooks/useShowMessage.jsx'
+import { MessageProvider } from './hooks/MessageProvider.jsx'
 import { Home } from './pages/Home'
 import { Signin } from './pages/Signin'
 

@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { MessageProvider } from './hooks/MessageProvider.jsx'
 import { Home } from './pages/Home'
 import { Signin } from './pages/Signin'
+import { NotFound } from './pages/NotFound.jsx'
 
 function App() {
   return (
@@ -11,7 +12,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Signin />} />
           <Route path="/home" element={<Home />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/notFound" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/notFound" replace />} />
         </Routes>
       </MessageProvider>
     </BrowserRouter>

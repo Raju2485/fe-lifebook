@@ -18,3 +18,18 @@ h2 {
   color: $primary-color;
   border: 5px solid $accent;
 }
+
+.text-center {
+  text-align: center;
+  padding-top: 100px;
+}
+
+.dashboard-cards {
+  text-align: center;
+  padding: 10px;
+  height: 200px;
+  width: 200px;
+  min-height: 200px;
+  min-width: 200px;
+  background-color: $card-bg-color;
+}

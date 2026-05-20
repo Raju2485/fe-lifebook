@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Button, Checkbox, Form, Input, Typography } from 'antd'
 import { useSigninMutation } from '../services/apiSlice'
 import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage'
@@ -10,14 +10,17 @@ const Signin = () => {
   const [signin] = useSigninMutation()
   const { showMessage } = useShowMessage()
 
+  const location = useLocation()
   const navigate = useNavigate()
+
+  const from = location.state?.from?.pathname ?? '/dashboard';
 
   useEffect(() => {
     const user = getLocalStorage('user')
     if (user?.accessToken) {
-      navigate('/home', { replace: true })
+      navigate(from, { replace: true })
     }
-  }, [navigate])
+  }, [navigate, from])
 
   const onFinish = async (values) => {
     try {
@@ -35,7 +38,7 @@ const Signin = () => {
         setLocalStorage('user', user)
         setLocalStorage('userDetails', res?.user_details ?? false)
         setFlashMessage({ type: 'success', content: res?.msg ?? '' })
-        navigate('/home', { replace: true })
+        navigate(from, { replace: true })
       }
     } catch (err) {
       showMessage({ type: 'error', content: err?.data?.msg ?? '' })

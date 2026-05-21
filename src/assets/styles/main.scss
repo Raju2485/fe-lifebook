@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
 body {
   background: $body-background-color;
   font-family: $font-stack;
@@ -34,16 +42,27 @@ h2 {
   background-color: $card-bg-color;
 }
 
-.app-header {
+.app-layout {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.app-header.ant-layout-header {
   position: sticky;
   top: 0;
   z-index: 100;
   display: flex;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
   height: 64px;
-  padding: 0 24px;
+  margin: 0;
+  padding: 0;
   line-height: normal;
-  background: #fff;
+  color: $accent;
+  background: #fff !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }

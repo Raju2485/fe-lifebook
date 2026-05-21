@@ -1,3 +1,5 @@
 import { Dashboard } from '../features/dashboard'
 
-export { Dashboard }
+export function DashboardPage() {
+  return <Dashboard />
+}

@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom'
+import { Header } from '../features/header'
 import { getLocalStorage } from '../utils/localStorage'
 
 function ProtectedRoute({ children }) {
@@ -12,7 +13,12 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/" state={{ from: location }} replace />
   }
 
-  return children
+  return (
+    <div className="app-layout">
+      <Header />
+      <main className="app-layout__content">{children}</main>
+    </div>
+  )
 }
 
 export { ProtectedRoute }

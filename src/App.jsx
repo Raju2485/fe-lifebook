@@ -1,7 +1,7 @@
 import './assets/styles/main.scss'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { MessageProvider } from './hooks/MessageProvider.jsx'
-import { Dashboard } from './pages/Dashboard.jsx'
+import { DashboardPage } from './pages/Dashboard.jsx'
 import { Signin } from './pages/Signin'
 import { NotFound } from './pages/NotFound.jsx'
 import { PrivateRoute } from './pages/PrivateRoute.jsx'
@@ -21,7 +21,7 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <DashboardPage />
               </ProtectedRoute>
             }
           />
@@ -33,7 +33,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/notFound" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </MessageProvider>

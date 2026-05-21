@@ -33,3 +33,57 @@ h2 {
   min-width: 200px;
   background-color: $card-bg-color;
 }
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 24px;
+  line-height: normal;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.app-header__inner {
+  width: 100%;
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $accent;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.app-header__icon {
+  font-size: 22px;
+}
+
+.app-header__search {
+  width: 280px;
+  max-width: 40vw;
+}
+
+.app-header__user {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.app-layout__content {
+  padding: 24px;
+}

@@ -1,6 +1,6 @@
 import { Typography, Button, Flex } from 'antd';
 import { useCardsQuery } from '../services/apiSlice';
-import {Card} from './Card'
+import { Card } from './Card';
 
 export function Dashboard() {
 

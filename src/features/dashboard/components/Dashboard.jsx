@@ -14,7 +14,7 @@ export function Dashboard() {
   return (
     <Flex wrap gap="small">
       {data?.data?.map((obj) => (
-        <Card obj={obj} />
+        <Card key={ obj.id } obj={obj} />
       ))}
     </Flex>
   )

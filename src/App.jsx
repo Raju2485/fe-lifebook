@@ -6,7 +6,8 @@ import { Signin } from './pages/Signin'
 import { NotFound } from './pages/NotFound.jsx'
 import { PrivateRoute } from './pages/PrivateRoute.jsx'
 import { ProtectedRoute } from './components/ProtectedRoute.jsx'
-import { getLocalStorage } from './utils/localStorage.js'
+import { getLocalStorage } from './utils/localStorage.js';
+import { UnderConstruction } from './pages/UnderConstruction.jsx'
 
 function App() {
   // const user = getLocalStorage('user')
@@ -33,6 +34,10 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/businessAndAccounts" element={<UnderConstruction />} />
+          <Route path="/dairy" element={<UnderConstruction />} />
+          <Route path="/relatives" element={<UnderConstruction />} />
+          <Route path="/tasks" element={<UnderConstruction />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </MessageProvider>

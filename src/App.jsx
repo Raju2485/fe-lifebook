@@ -6,7 +6,7 @@ import { Signin } from './pages/Signin'
 import { NotFound } from './pages/NotFound.jsx'
 import { PrivateRoute } from './pages/PrivateRoute.jsx'
 import { ProtectedRoute } from './components/ProtectedRoute.jsx'
-import { getLocalStorage } from './utils/localStorage.js';
+import { AuthSessionHandler } from './components/AuthSessionHandler.jsx'
 import { UnderConstruction } from './pages/UnderConstruction.jsx'
 
 function App() {
@@ -15,6 +15,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <AuthSessionHandler />
       <MessageProvider>
         <Routes>
           <Route path="/" element={<Signin />} />

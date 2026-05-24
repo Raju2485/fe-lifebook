@@ -1,24 +1,56 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { getLocalStorage } from '../utils/localStorage'
+import {
+  API_BASE_URL,
+  dispatchSessionExpired,
+  getAuthTokens,
+  isAuthEndpoint,
+  refreshAccessToken,
+} from '../utils/authSession'
 
-// Define a service using a base URL and expected endpoints
-export const api = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3000/api/v1/',
-    prepareHeaders: (headers) => {
-      const user = getLocalStorage('user')
-      const authToken = user?.accessToken
-      if (authToken) {
-        headers.set('authorization', `Bearer ${authToken}`)
-      }
+const baseQuery = fetchBaseQuery({
+  baseUrl: API_BASE_URL,
+  prepareHeaders: (headers) => {
+    const { accessToken } = getAuthTokens()
+    if (accessToken) {
+      headers.set('authorization', `Bearer ${accessToken}`)
+    }
 
-      return headers
-    },
-  }),
-  tagTypes: ['Post', 'User'], // Define all tags here
-  endpoints: () => ({}), // Leave empty if injecting later
+    return headers
+  },
 })
 
-// Export hooks for usage in functional components, which are
-// auto-generated based on the defined endpoints
+export const baseQueryWithReauth = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions)
+
+  if (result.error?.status !== 401) {
+    return result
+  }
+
+  const url = typeof args === 'string' ? args : (args.url ?? '')
+
+  if (isAuthEndpoint(url)) {
+    return result
+  }
+
+  if (extraOptions?._retry) {
+    dispatchSessionExpired()
+    return result
+  }
+
+  const refreshed = await refreshAccessToken()
+
+  if (refreshed) {
+    result = await baseQuery(args, api, { ...extraOptions, _retry: true })
+    return result
+  }
+
+  dispatchSessionExpired()
+  return result
+}
+
+export const api = createApi({
+  reducerPath: 'api',
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ['Post', 'User'],
+  endpoints: () => ({}),
+})

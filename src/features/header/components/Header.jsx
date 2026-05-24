@@ -7,10 +7,8 @@ import {
   UserOutlined,
   LogoutOutlined,
 } from '@ant-design/icons'
-import {
-  getLocalStorage,
-  removeLocalStorage,
-} from '../../../utils/localStorage'
+import { getLocalStorage } from '../../../utils/localStorage'
+import { clearAuthRedirect, clearAuthSession } from '../../../utils/authSession'
 
 export function Header() {
   const navigate = useNavigate()
@@ -24,8 +22,8 @@ export function Header() {
   const [search, setSearch] = useState('')
 
   const handleLogout = () => {
-    removeLocalStorage('user')
-    removeLocalStorage('userDetails')
+    clearAuthSession()
+    clearAuthRedirect()
     navigate('/', { replace: true })
   }
 

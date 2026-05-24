@@ -3,6 +3,10 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Button, Checkbox, Form, Input, Typography } from 'antd'
 import { useSigninMutation } from '../services/apiSlice'
 import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage'
+import {
+  clearAuthRedirect,
+  getAuthRedirectPath,
+} from '../../../utils/authSession'
 import { setFlashMessage } from '../../../utils/flashMessage'
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
 
@@ -13,7 +17,8 @@ const Signin = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const from = location.state?.from?.pathname ?? '/dashboard';
+  const from =
+    location.state?.from?.pathname ?? getAuthRedirectPath() ?? '/dashboard'
 
   useEffect(() => {
     const user = getLocalStorage('user')
@@ -37,6 +42,7 @@ const Signin = () => {
       if (user) {
         setLocalStorage('user', user)
         setLocalStorage('userDetails', res?.user_details ?? false)
+        clearAuthRedirect()
         setFlashMessage({ type: 'success', content: res?.msg ?? '' })
         navigate(from, { replace: true })
       }

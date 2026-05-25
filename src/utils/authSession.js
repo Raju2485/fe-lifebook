@@ -89,5 +89,22 @@ async function performTokenRefresh() {
 
 export function isAuthEndpoint(url = '') {
   const path = url.replace(/^\//, '')
-  return path.startsWith('signin') || path.startsWith('refresh-token')
+  return (
+    path.startsWith('signin') ||
+    path.startsWith('signout') ||
+    path.startsWith('refresh-token')
+  )
+}
+
+export async function signOut(apiCall) {
+  try {
+    if (apiCall) {
+      await apiCall()
+    }
+  } catch {
+    // Still clear local session if the server signout fails
+  }
+
+  clearAuthSession()
+  clearAuthRedirect()
 }

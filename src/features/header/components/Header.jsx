@@ -7,11 +7,14 @@ import {
   UserOutlined,
   LogoutOutlined,
 } from '@ant-design/icons'
+import { useSignoutMutation } from '../../signin/services/apiSlice'
 import { getLocalStorage } from '../../../utils/localStorage'
-import { clearAuthRedirect, clearAuthSession } from '../../../utils/authSession'
+import { signOut } from '../../../utils/authSession'
 
 export function Header() {
   const navigate = useNavigate()
+  const [signoutApi] = useSignoutMutation()
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const userDetails = getLocalStorage('userDetails')
   const displayName =
     userDetails?.name ||
@@ -21,10 +24,14 @@ export function Header() {
 
   const [search, setSearch] = useState('')
 
-  const handleLogout = () => {
-    clearAuthSession()
-    clearAuthRedirect()
-    navigate('/', { replace: true })
+  const handleLogout = async () => {
+    setIsSigningOut(true)
+    try {
+      await signOut(() => signoutApi().unwrap())
+      navigate('/', { replace: true })
+    } finally {
+      setIsSigningOut(false)
+    }
   }
 
   const userMenu = {
@@ -33,6 +40,7 @@ export function Header() {
         key: 'logout',
         label: 'Logout',
         icon: <LogoutOutlined />,
+        disabled: isSigningOut,
         onClick: handleLogout,
       },
     ],

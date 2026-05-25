@@ -8,6 +8,7 @@ import { PrivateRoute } from './pages/PrivateRoute.jsx'
 import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import { AuthSessionHandler } from './components/AuthSessionHandler.jsx'
 import { UnderConstruction } from './pages/UnderConstruction.jsx'
+import { BusinessAndAccounts } from './pages/BusinessAndAccounts.jsx'
 
 function App() {
   // const user = getLocalStorage('user')
@@ -35,7 +36,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/businessAndAccounts" element={<UnderConstruction />} />
+          <Route
+            path="/businessAndAccounts/:id"
+            element={
+              <ProtectedRoute>
+                <UnderConstruction />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/businessAndAccounts"
+            element={
+              <ProtectedRoute>
+                <BusinessAndAccounts />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/dairy" element={<UnderConstruction />} />
           <Route path="/relatives" element={<UnderConstruction />} />
           <Route path="/tasks" element={<UnderConstruction />} />

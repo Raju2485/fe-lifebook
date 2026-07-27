@@ -1,0 +1,29 @@
+@use '../../../assets/styles/variables.scss' as *;
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  background-color: DodgerBlue;
+  // margin: 10px;
+  align-items: stretch; 
+  justify-content: center;
+  // align-content: center;
+}
+
+.section {
+  flex: 1; /* both sections take equal width */
+  display: flex;
+  flex-direction: column;
+  background-color: #f1f1f1;
+  margin: 10px;  
+  padding: 10px;
+}
+
+.section div {
+  background: brown;
+  color: black;
+  margin: 10px;
+  padding: 20px;
+  text-align: center;
+  flex: 1; /* each div grows equally within its section */
+}

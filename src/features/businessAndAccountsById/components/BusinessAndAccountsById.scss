@@ -1,0 +1,157 @@
+@use '../../../assets/styles/variables.scss' as *;
+
+.accounts-by-id {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.accounts-by-id__top {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+  }
+}
+
+.accounts-by-id__panel {
+  border: 1px solid $accent;
+  background: #fff;
+  padding: 12px 16px;
+}
+
+.accounts-by-id__panel-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: $accent;
+}
+
+.accounts-by-id__journal > .accounts-by-id__panel-title {
+  margin-bottom: 12px;
+}
+
+.accounts-by-id__journal {
+  flex: 1 1 65%;
+  min-width: 0;
+}
+
+.accounts-by-id__reports {
+  flex: 0 1 35%;
+  min-width: 240px;
+}
+
+.accounts-by-id__reports-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.accounts-by-id__journal-body {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.accounts-by-id__journal-fields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.accounts-by-id__account-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accounts-by-id__account-row--credit {
+  padding-left: 24px;
+}
+
+.accounts-by-id__account-label {
+  min-width: 28px;
+  font-weight: 600;
+  color: $accent;
+}
+
+.accounts-by-id__account-label--right {
+  margin-left: auto;
+}
+
+.accounts-by-id__post-btn {
+  align-self: stretch;
+  min-width: 72px;
+  height: auto;
+}
+
+.accounts-by-id__month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.flex {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  align-items: stretch;
+}
+
+
+.flex-item {
+flex: 1;           /* each button grows/shrinks equally */
+  padding: 10px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.accounts-by-id__month-btn {
+  min-width: 0;
+}
+
+.accounts-by-id__table-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.accounts-by-id__table-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.accounts-by-id__search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.accounts-by-id__table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.accounts-by-id__pagination {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.accounts-by-id__page-size {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}

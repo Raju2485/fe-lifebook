@@ -1,0 +1,13 @@
+@use '../../../assets/styles/variables.scss' as *;
+
+.business-and-accounts {
+  &__toolbar {
+    display: block;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  &__cards {
+    clear: both;
+  }
+}

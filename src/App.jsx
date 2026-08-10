@@ -45,7 +45,7 @@ function App() {
                 <BusinessAndAccountsById />
               </ProtectedRoute>
             }
-          />
+          /> 
           <Route
             path="/businessAndAccounts"
             element={

@@ -1,6 +1,6 @@
 import { api } from '../../../services/api'
 
-const getOrgs = api.injectEndpoints({
+const businessAndAccountsApi = api.injectEndpoints({
   endpoints: (build) => ({
     orgs: build.query({
       query: (name) => ({
@@ -9,6 +9,14 @@ const getOrgs = api.injectEndpoints({
         params: name,
       }),
     }),
+    createOrg: build.mutation({
+      query: (data) => ({
+        url: '/create-organization',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 })
-export const { useOrgsQuery } = getOrgs
+
+export const { useOrgsQuery, useCreateOrgMutation } = businessAndAccountsApi

@@ -52,5 +52,13 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Post', 'User'],
-  endpoints: () => ({}),
+  endpoints: (build) => ({
+    accTypes: build.query({
+      accounts: (name) => ({
+        url: '/get-account-types',
+        method: 'GET',
+        params: name,
+      }),
+    }),
+  }),
 })

@@ -1,4 +1,5 @@
-import { api } from '../../../services/api'
+import { api } from '../../../services/api';
+export const { useAccTypesQuery } = api;
 
 const getAccounts = api.injectEndpoints({
   endpoints: (build) => ({
@@ -9,6 +10,13 @@ const getAccounts = api.injectEndpoints({
         params: name,
       }),
     }),
+    createAccount: build.mutation({
+      query: (data) => ({
+        url: '/create-account',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 })
-export const { useAccountsQuery } = getAccounts
+export const { useAccountsQuery, useCreateAccountMutation } = getAccounts

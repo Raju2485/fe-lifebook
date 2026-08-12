@@ -10,13 +10,22 @@ import {
   Select,
   Table,
   Typography,
+  Modal,
+  Form,
+  Card as AntCard,
+  Row,
+  Col,
+  Space,
 } from 'antd'
+
+const { Item: FormItem } = Form
 import { DownloadOutlined, UploadOutlined, SearchOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import './BusinessAndAccountsById.scss'
 import TextArea from 'antd/es/input/TextArea';
 
-import { useAccountsQuery } from '../services/apiSlice'
+import { useShowMessage } from '../../../hooks/useShowMessage.js'
+import { useAccountsQuery, useCreateAccountMutation, useAccTypesQuery } from '../services/apiSlice'
 
 
 const DATE_FORMAT = 'D-MMM-YYYY'
@@ -78,7 +87,12 @@ function BusinessAndAccountsById() {
   const [currentPage, setCurrentPage] = useState(10)
   const [pageSize, setPageSize] = useState(20)
   const [amount, setAmount] = useState()
+  
+  const [open, setOpen] = useState(false)
+  const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
 
+  const { showMessage } = useShowMessage()
+  const [form2] = Form.useForm();
   const filteredTransactions = useMemo(() => {
     const query = searchText.trim().toLowerCase()
     if (!query) return SAMPLE_TRANSACTIONS
@@ -98,7 +112,9 @@ function BusinessAndAccountsById() {
       { refetchOnMountOrArgChange: true, orgId:id }
     )
     
-
+  const [createAccount] = useCreateAccountMutation();
+  const [accTypes] = useAccTypesQuery();
+  
   const handleBulkUpload = () => {
     // Placeholder until bulk upload API is wired up.
   }
@@ -111,10 +127,56 @@ function BusinessAndAccountsById() {
   const handleCreateAccount = () => {
     // Placeholder until account creation API is wired up.
   }
+  const handleCreateAccountModal = () => {
+    // await form.validateFields();
+    setOpen(true)
+    // Placeholder until account creation API is wired up.
+  }
 
   const handlePostJournalEntry = () => {
     // Placeholder until journal entry posting API is wired up.
   }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
+  
+  const onFinishModal = async () => {
+    try {
+      setIsModalSubmitDisabled(true)
+      const values = await form2.validateFields()
+
+      const response = await createAccount({ ...values })
+
+      if (response?.data?.success === true) {
+        form2.resetFields()
+        setOpen(false)
+        showMessage({
+          type: 'success',
+          content: response?.data?.message ?? 'Organization created',
+        })
+      } else {
+        showMessage({
+          type: 'error',
+          content:
+            response?.error?.data?.message ?? 'Failed to create organization',
+        })
+      }
+    } catch (info) {
+      console.log('Validate Failed:', info)
+    } finally {
+      setIsModalSubmitDisabled(false)
+    }
+  }
+
+  const onChange = (value) => {
+    console.log(`selected ${value}`)
+  }
+  const onSearch = (value) => {
+    console.log('search:', value)
+  }
+
 
   return (
     <div className="accounts-by-id">
@@ -195,7 +257,7 @@ function BusinessAndAccountsById() {
                 type="default"
                 className="flex-button"
                 icon={<DownloadOutlined />}
-                iconPosition="end"
+                iconPlacement="end"
                 onClick={handleTemplateDownload}
               >
                 Bulk upload template
@@ -204,7 +266,7 @@ function BusinessAndAccountsById() {
                 type="default"
                 className="flex-button"
                 icon={<UploadOutlined />}
-                iconPosition="end"
+                iconPlacement="end"
                 onClick={handleBulkUpload}
               >
                 Bulk upload
@@ -212,7 +274,7 @@ function BusinessAndAccountsById() {
               <Button
                 type="default"
                 className="flex-button"
-                onClick={handleCreateAccount}
+                onClick={handleCreateAccountModal}
               >
                 Create Account
               </Button>
@@ -313,6 +375,98 @@ function BusinessAndAccountsById() {
           </div>
         </div>
       </section>
+
+      <Modal
+        title=""
+        open={open}
+        width="50%"
+        footer={null}
+        // className={styles.customModal}
+        closable={false}
+        onCancel={handleClose}
+      >
+        <div
+        // className={`${styles.table_row}`}
+        >
+          <Form form={form2} layout="vertical" onFinish={onFinishModal}>
+            <AntCard
+              title={'Create Account'}
+              // className={styles.CustomPanel}
+            >
+              <Row gutter={24}>
+                <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                  <FormItem
+                    label="Account Name:"
+                    name="name"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Enter Account Name',
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Enter Account Name" />
+                  </FormItem>
+                </Col>{' '}
+                <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                  <FormItem
+                    label="Account Type:"
+                    name="AccTypeId"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Select Account Type',
+                      },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Select Account Type"
+                      showSearch
+                      optionFilterProp="children"
+                      onSearch={(e) => onSearch(e, 'area_name')}
+                      onChange={(e) => onChange(e, 'area_name')}
+                      disabled={isModalSubmitDisabled}
+                    >
+                      {uacrOfSamplingOrDbarAreaMasters?.data?.map(
+                        (item, index) => {
+                          return (
+                            <option value={item.id} key={index}>
+                              {item.area}
+                            </option>
+                          )
+                        }
+                      )}
+                    </Select>{' '}
+                  </FormItem>
+                </Col>
+              </Row>
+            </AntCard>
+
+            <FormItem className="text-center">
+              <Space>
+                <Button
+                  // className={styles.inwardButton}
+                  htmlType="submit"
+                  type="primary"
+                  size="medium"
+                  disabled={isModalSubmitDisabled}
+                >
+                  Submit
+                </Button>
+                <Button
+                  // className={styles.inwardButton}
+                  onClick={handleClose}
+                  type="primary"
+                  ghost
+                  size="medium"
+                >
+                  Close
+                </Button>
+              </Space>
+            </FormItem>
+          </Form>
+        </div>
+      </Modal>
     </div>
   )
 }

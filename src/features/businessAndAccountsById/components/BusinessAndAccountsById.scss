@@ -85,10 +85,13 @@
   margin-left: auto;
 }
 
+.flex-button {
+  width: 100%;
+}
+
 .accounts-by-id__post-btn {
-  align-self: stretch;
-  min-width: 72px;
-  height: auto;
+  min-height: 64px;
+  height: 64px;
 }
 
 .accounts-by-id__month-grid {
@@ -101,8 +104,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  height: 100%;
   align-items: stretch;
+  flex-shrink: 0;
 }
 
 

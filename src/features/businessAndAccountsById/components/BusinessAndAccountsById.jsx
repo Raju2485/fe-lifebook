@@ -11,7 +11,7 @@ import {
   Table,
   Typography,
 } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
+import { DownloadOutlined, UploadOutlined, SearchOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import './BusinessAndAccountsById.scss'
 import TextArea from 'antd/es/input/TextArea';
@@ -99,8 +99,21 @@ function BusinessAndAccountsById() {
     )
     
 
-  const handlePost = () => {
-    // Placeholder until journal entry API is wired up.
+  const handleBulkUpload = () => {
+    // Placeholder until bulk upload API is wired up.
+  }
+
+  
+  const handleTemplateDownload = () => {
+    // Placeholder until bulk upload API is wired up.
+  }
+
+  const handleCreateAccount = () => {
+    // Placeholder until account creation API is wired up.
+  }
+
+  const handlePostJournalEntry = () => {
+    // Placeholder until journal entry posting API is wired up.
   }
 
   return (
@@ -181,16 +194,34 @@ function BusinessAndAccountsById() {
               <Button
                 type="default"
                 className="flex-button"
-                onClick={handlePost}
+                icon={<DownloadOutlined />}
+                iconPosition="end"
+                onClick={handleTemplateDownload}
               >
                 Bulk upload template
               </Button>
               <Button
                 type="default"
                 className="flex-button"
-                onClick={handlePost}
+                icon={<UploadOutlined />}
+                iconPosition="end"
+                onClick={handleBulkUpload}
               >
-                Upload in bulk
+                Bulk upload
+              </Button>
+              <Button
+                type="default"
+                className="flex-button"
+                onClick={handleCreateAccount}
+              >
+                Create Account
+              </Button>
+              <Button
+                type="primary"
+                className="flex-button accounts-by-id__post-btn"
+                onClick={handlePostJournalEntry}
+              >
+                Post Journal Entry
               </Button>
             </div>
           </div>

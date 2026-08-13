@@ -4,7 +4,7 @@ export const { useAccTypesQuery } = api;
 const getAccounts = api.injectEndpoints({
   endpoints: (build) => ({
     accounts: build.query({
-      accounts: (name) => ({
+      query: (name) => ({
         url: '/get-accounts',
         method: 'GET',
         params: name,

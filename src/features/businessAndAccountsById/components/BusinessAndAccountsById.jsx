@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useParams} from 'react-router';
+import { useParams } from 'react-router'
 import {
   Button,
   DatePicker,
@@ -19,17 +19,24 @@ import {
 } from 'antd'
 
 const { Item: FormItem } = Form
-import { DownloadOutlined, UploadOutlined, SearchOutlined } from '@ant-design/icons'
+import {
+  DownloadOutlined,
+  UploadOutlined,
+  SearchOutlined,
+} from '@ant-design/icons'
 import dayjs from 'dayjs'
 import './BusinessAndAccountsById.scss'
-import TextArea from 'antd/es/input/TextArea';
+import TextArea from 'antd/es/input/TextArea'
 
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
-import { useAccountsQuery, useCreateAccountMutation, useAccTypesQuery } from '../services/apiSlice'
-
+import {
+  useAccountsQuery,
+  useCreateAccountMutation,
+  useAccTypesQuery,
+} from '../services/apiSlice'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
-// const ACCOUNT_OPTIONS = 
+// const ACCOUNT_OPTIONS =
 const MONTHS = [
   'Jan',
   'Feb',
@@ -87,12 +94,12 @@ function BusinessAndAccountsById() {
   const [currentPage, setCurrentPage] = useState(10)
   const [pageSize, setPageSize] = useState(20)
   const [amount, setAmount] = useState()
-  
+
   const [open, setOpen] = useState(false)
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
 
   const { showMessage } = useShowMessage()
-  const [form2] = Form.useForm();
+  const [form2] = Form.useForm()
   const filteredTransactions = useMemo(() => {
     const query = searchText.trim().toLowerCase()
     if (!query) return SAMPLE_TRANSACTIONS
@@ -102,24 +109,22 @@ function BusinessAndAccountsById() {
         (value) => value.toLowerCase().includes(query)
       )
     )
-  }, [searchText]);
-  const { id } = useParams();
+  }, [searchText])
+  const { id } = useParams()
 
-  
-    const { data: accounts } = useAccountsQuery(
-      // { count: 5 },
-      // This option forces a refetch on component mount
-      { refetchOnMountOrArgChange: true, orgId:id }
-    )
-    
-  const [createAccount] = useCreateAccountMutation();
-  const [accTypes] = useAccTypesQuery();
-  
+  const { data: accounts } = useAccountsQuery(
+    // { count: 5 },
+    // This option forces a refetch on component mount
+    { refetchOnMountOrArgChange: true, orgId: id }
+  )
+
+  const [createAccount] = useCreateAccountMutation()
+  const { data: accTypes } = useAccTypesQuery()
+
   const handleBulkUpload = () => {
     // Placeholder until bulk upload API is wired up.
   }
 
-  
   const handleTemplateDownload = () => {
     // Placeholder until bulk upload API is wired up.
   }
@@ -141,13 +146,12 @@ function BusinessAndAccountsById() {
     setOpen(false)
   }
 
-  
   const onFinishModal = async () => {
     try {
       setIsModalSubmitDisabled(true)
       const values = await form2.validateFields()
 
-      const response = await createAccount({ ...values })
+      const response = await createAccount({ ...values, orgId: id })
 
       if (response?.data?.success === true) {
         form2.resetFields()
@@ -176,7 +180,6 @@ function BusinessAndAccountsById() {
   const onSearch = (value) => {
     console.log('search:', value)
   }
-
 
   return (
     <div className="accounts-by-id">
@@ -423,20 +426,16 @@ function BusinessAndAccountsById() {
                       placeholder="Select Account Type"
                       showSearch
                       optionFilterProp="children"
-                      onSearch={(e) => onSearch(e, 'area_name')}
-                      onChange={(e) => onChange(e, 'area_name')}
+                      onSearch={(e) => onSearch(e, 'accType')}
+                      onChange={(e) => onChange(e, 'accType')}
                       disabled={isModalSubmitDisabled}
-                    >
-                      {uacrOfSamplingOrDbarAreaMasters?.data?.map(
-                        (item, index) => {
-                          return (
-                            <option value={item.id} key={index}>
-                              {item.area}
-                            </option>
-                          )
-                        }
-                      )}
-                    </Select>{' '}
+                      options={
+                        accTypes?.data?.map((item) => ({
+                          value: item.id,
+                          label: item.name,
+                        })) ?? []
+                      }
+                    />
                   </FormItem>
                 </Col>
               </Row>

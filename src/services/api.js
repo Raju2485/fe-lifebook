@@ -54,7 +54,7 @@ export const api = createApi({
   tagTypes: ['Post', 'User'],
   endpoints: (build) => ({
     accTypes: build.query({
-      accounts: (name) => ({
+      query: (name) => ({
         url: '/get-account-types',
         method: 'GET',
         params: name,

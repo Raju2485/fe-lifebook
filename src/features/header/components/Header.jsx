@@ -17,10 +17,7 @@ export function Header() {
   const [isSigningOut, setIsSigningOut] = useState(false)
   const userDetails = getLocalStorage('userDetails')
   const displayName =
-    userDetails?.name ||
-    userDetails?.username ||
-    userDetails?.email ||
-    'User'
+    userDetails?.name || userDetails?.username || userDetails?.email || 'User'
 
   const [search, setSearch] = useState('')
 
@@ -48,7 +45,11 @@ export function Header() {
 
   return (
     <Layout.Header className="app-header">
-      <Flex align="center" justify="space-between" className="app-header__inner">
+      <Flex
+        align="center"
+        justify="space-between"
+        className="app-header__inner"
+      >
         <Flex align="center" gap="middle" className="app-header__left">
           <Link to="/dashboard" className="app-header__brand">
             <BookOutlined className="app-header__icon" />

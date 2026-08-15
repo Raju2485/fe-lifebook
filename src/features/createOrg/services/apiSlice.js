@@ -8,8 +8,8 @@ const createOrgApi = api.injectEndpoints({
         method: 'POST',
         body: credentials,
       }),
-    })
+    }),
   }),
 })
 export default createOrgApi
-export const { useCreateOrgMutation } = createOrgApi;
+export const { useCreateOrgMutation } = createOrgApi

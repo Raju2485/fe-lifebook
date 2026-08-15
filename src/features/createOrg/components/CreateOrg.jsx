@@ -2,7 +2,10 @@ import React, { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Button, Checkbox, Form, Input, Typography } from 'antd'
 import { useSigninMutation } from '../services/apiSlice.js'
-import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage.js'
+import {
+  getLocalStorage,
+  setLocalStorage,
+} from '../../../utils/localStorage.js'
 import {
   clearAuthRedirect,
   getAuthRedirectPath,

@@ -60,5 +60,26 @@ export const api = createApi({
         params: name,
       }),
     }),
+    roles: build.query({
+      query: (name) => ({
+        url: '/get-roles',
+        method: 'GET',
+        params: name,
+      }),
+    }),
+    users: build.query({
+      query: (name) => ({
+        url: '/get-users',
+        method: 'GET',
+        params: name,
+      }),
+    }),
+    accounts: build.query({
+      query: (name) => ({
+        url: '/get-accounts',
+        method: 'GET',
+        params: name,
+      }),
+    }),
   }),
 })

@@ -16,6 +16,11 @@
   }
 }
 
+.center {
+  padding-left: auto;
+  padding-right: auto;
+  text-align: center;
+}
 .accounts-by-id__panel {
   border: 1px solid $accent;
   background: #fff;
@@ -108,9 +113,8 @@
   flex-shrink: 0;
 }
 
-
 .flex-item {
-flex: 1;           /* each button grows/shrinks equally */
+  flex: 1; /* each button grows/shrinks equally */
   padding: 10px;
   font-size: 16px;
   text-align: center;

@@ -1,2 +1,1 @@
-export {Practice} from './components/Practice'
-
+export { Practice } from './components/Practice'

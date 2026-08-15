@@ -16,6 +16,7 @@ import {
   Row,
   Col,
   Space,
+  Radio,
 } from 'antd'
 
 const { Item: FormItem } = Form
@@ -33,6 +34,8 @@ import {
   useAccountsQuery,
   useCreateAccountMutation,
   useAccTypesQuery,
+  useRolesQuery,
+  useUsersQuery,
 } from '../services/apiSlice'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
@@ -110,7 +113,7 @@ function BusinessAndAccountsById() {
       )
     )
   }, [searchText])
-  const { id } = useParams()
+  const { id, orgName } = useParams()
 
   const { data: accounts } = useAccountsQuery(
     // { count: 5 },
@@ -120,6 +123,16 @@ function BusinessAndAccountsById() {
 
   const [createAccount] = useCreateAccountMutation()
   const { data: accTypes } = useAccTypesQuery()
+  const { data: roles } = useRolesQuery()
+  const { data: users } = useUsersQuery({ orgId: id })
+
+  const isMember = Form.useWatch('isMember', form2)
+  const isUserExisting = Form.useWatch('isUserExisting', form2)
+  const isPerson = Form.useWatch('isPerson', form2)
+  const accTypeId = Form.useWatch('AccTypeId', form2)
+
+  let accType = accTypes?.data?.filter((obj) => obj.id == accTypeId)
+  accType = accType ? accType?.[0]?.name : ''
 
   const handleBulkUpload = () => {
     // Placeholder until bulk upload API is wired up.
@@ -183,6 +196,12 @@ function BusinessAndAccountsById() {
 
   return (
     <div className="accounts-by-id">
+      <Typography.Title
+        level={3}
+        className="accounts-by-id__panel-title center"
+      >
+        {orgName}
+      </Typography.Title>
       <div className="accounts-by-id__top">
         <section className="accounts-by-id__panel accounts-by-id__journal">
           <Typography.Title level={5} className="accounts-by-id__panel-title">
@@ -399,18 +418,40 @@ function BusinessAndAccountsById() {
               <Row gutter={24}>
                 <Col xs={24} xl={12} span={24} md={24} sm={24}>
                   <FormItem
-                    label="Account Name:"
-                    name="name"
+                    label="Is the User existing / new"
+                    name="isUserExisting"
                     rules={[
                       {
                         required: true,
-                        message: 'Enter Account Name',
+                        message: 'Select Existing / New',
                       },
                     ]}
                   >
-                    <Input placeholder="Enter Account Name" />
+                    <Radio.Group
+                      onChange={(e) => {
+                        // const selectedAccType = accTypes?.data?.filter(
+                        //   (obj) => obj.id == form2.getFieldValue('AccTypeId')
+                        // );
+                        if (e.target.value == true) {
+                          const accTypePersonal = accTypes?.data?.filter(
+                            (obj) => obj.name == 'personal'
+                          )
+                          console.log('accTypePersonal = ', accTypePersonal)
+                          form2.setFieldValue(
+                            'AccTypeId',
+                            accTypePersonal?.[0]?.id
+                          )
+                          form2.setFieldValue('isPerson', true)
+                        }
+                      }}
+                    >
+                      <Radio value={true} defaultChecked>
+                        Existing
+                      </Radio>
+                      <Radio value={false}>New</Radio>
+                    </Radio.Group>
                   </FormItem>
-                </Col>{' '}
+                </Col>
                 <Col xs={24} xl={12} span={24} md={24} sm={24}>
                   <FormItem
                     label="Account Type:"
@@ -427,17 +468,201 @@ function BusinessAndAccountsById() {
                       showSearch
                       optionFilterProp="children"
                       onSearch={(e) => onSearch(e, 'accType')}
-                      onChange={(e) => onChange(e, 'accType')}
-                      disabled={isModalSubmitDisabled}
+                      onChange={(e) => {
+                        let accType = accTypes?.data?.filter(
+                          (obj) => obj.id == accTypeId
+                        )
+                        accType = accType ? accType?.[0]?.name : ''
+                        console.log('accType = ', accType)
+                        if (accType == 'real') {
+                          form2.setFieldValue('natureOfAccount', 'cash')
+                        }
+                      }}
                       options={
                         accTypes?.data?.map((item) => ({
                           value: item.id,
                           label: item.name,
+                          disabled:
+                            isUserExisting && item.name != 'personal' && true,
                         })) ?? []
                       }
+                      disabled={isModalSubmitDisabled || isUserExisting}
                     />
                   </FormItem>
                 </Col>
+                {accType == 'personal' && (
+                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                    <FormItem
+                      label="Is Person?"
+                      name="isPerson"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Select Yes / No',
+                        },
+                      ]}
+                    >
+                      <Radio.Group
+                        disabled={isUserExisting}
+                        onChange={(e) => {
+                          if (e.target.value == false) {
+                            form2.setFieldValue('natureOfAccount', 'bank')
+                          }
+                        }}
+                      >
+                        <Radio value={true} checked={isUserExisting}>
+                          Yes
+                        </Radio>
+                        <Radio value={false}>No</Radio>
+                      </Radio.Group>
+                    </FormItem>
+                  </Col>
+                )}
+                {accType == 'real' && (
+                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                    <FormItem
+                      label="Nature of Account"
+                      name="natureOfAccount"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Select Bank / Cash',
+                        },
+                      ]}
+                    >
+                      <Radio.Group disabled={true}>
+                        <Radio value={'bank'}>Bank</Radio>
+                        <Radio value={'cash'}>Cash</Radio>
+                      </Radio.Group>
+                    </FormItem>
+                  </Col>
+                )}
+                {accType == 'personal' && !isPerson && (
+                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                    <FormItem
+                      label="Nature of Account"
+                      name="natureOfAccount"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Select Bank / Cash',
+                        },
+                      ]}
+                    >
+                      <Radio.Group disabled={true}>
+                        <Radio value={'bank'} checked={true}>
+                          Bank
+                        </Radio>
+                        <Radio value={'cash'}>Cash</Radio>
+                      </Radio.Group>
+                    </FormItem>
+                  </Col>
+                )}
+                {isUserExisting && (
+                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                    <FormItem
+                      label="User:"
+                      name="UserId"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Select User',
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select User"
+                        showSearch
+                        optionFilterProp="children"
+                        onSearch={(e) => onSearch(e, 'user')}
+                        onChange={(e) => onChange(e, 'user')}
+                        disabled={isModalSubmitDisabled}
+                        options={
+                          users?.data?.map((item) => ({
+                            value: item.id,
+                            label: `${item.name} (${item.uid})`,
+                          })) ?? []
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                )}
+                {isPerson && (
+                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                    <FormItem
+                      label="Is member?"
+                      name="isMember"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Select Yes / No',
+                        },
+                      ]}
+                    >
+                      <Radio.Group
+                        onChange={(e) => {
+                          if (e.target.value === false) {
+                            form2.setFieldsValue({ RolesIds: undefined })
+                          }
+                        }}
+                      >
+                        <Radio value={true}>Yes</Radio>
+                        <Radio value={false}>No</Radio>
+                      </Radio.Group>
+                    </FormItem>
+                  </Col>
+                )}
+                {isMember && (
+                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                    <FormItem
+                      label="Roles:"
+                      name="RolesIds"
+                      // rules={[
+                      //   {
+                      //     required: true,
+                      //     message: 'Select Role(s)',
+                      //   },
+                      // ]}
+                    >
+                      <Select
+                        mode="multiple"
+                        allowClear
+                        placeholder="Select Role(s)"
+                        showSearch
+                        optionFilterProp="children"
+                        onSearch={(e) => onSearch(e, 'roles')}
+                        onChange={(e) => onChange(e, 'roles')}
+                        disabled={isModalSubmitDisabled}
+                        options={
+                          roles?.data?.map((item) => ({
+                            value: item.id,
+                            label: item.name,
+                          })) ?? []
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                )}
+                {/* {!isPerson && (
+                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                    <FormItem
+                      label="Is it Cash account / Bank account / None"
+                      name="cashOrBank"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Select Cash / Bank / None',
+                        },
+                      ]}
+                    >
+                      <Radio.Group>
+                        <Radio value={'cash'}>Cash</Radio>
+                        <Radio value={'bank'}>Bank</Radio>
+                        <Radio value={'false'}>None</Radio>
+                      </Radio.Group>
+                    </FormItem>
+                  </Col>
+                )} */}
               </Row>
             </AntCard>
 

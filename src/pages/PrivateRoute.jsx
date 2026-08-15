@@ -3,7 +3,6 @@ import { Typography } from 'antd'
 import { Link } from 'react-router-dom'
 
 export function PrivateRoute() {
-
   return (
     <>
       <div className="text-center">

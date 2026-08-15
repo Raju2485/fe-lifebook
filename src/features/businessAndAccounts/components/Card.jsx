@@ -5,14 +5,10 @@ const Card = ({ obj }) => {
   //     {obj.name}
   //   </Link>
   // )
-    return (
-      <Link
-        className="dashboard-cards"
-        to={`${obj.id}`}
-      >
-        {obj.name}
-      </Link>
-    )
-
+  return (
+    <Link className="dashboard-cards" to={`${obj.id}/${obj.name}`}>
+      {obj.name}
+    </Link>
+  )
 }
 export { Card }

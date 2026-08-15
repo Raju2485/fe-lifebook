@@ -39,13 +39,13 @@ function App() {
             }
           />
           <Route
-            path="/businessAndAccounts/:id"
+            path="/businessAndAccounts/:id/:orgName"
             element={
               <ProtectedRoute>
                 <BusinessAndAccountsById />
               </ProtectedRoute>
             }
-          /> 
+          />
           <Route
             path="/businessAndAccounts"
             element={

@@ -1,4 +1,4 @@
-import { api } from '../../../services/api';
+import { api } from '../../../services/api'
 
 const getCards = api.injectEndpoints({
   endpoints: (build) => ({
@@ -10,5 +10,5 @@ const getCards = api.injectEndpoints({
       }),
     }),
   }),
-});
+})
 export const { useCardsQuery } = getCards

@@ -13,8 +13,7 @@ export const setLocalStorage = (key, value) => {
   if (!isStorageAvailable()) return false
 
   try {
-    const serialized =
-      typeof value === 'string' ? value : JSON.stringify(value)
+    const serialized = typeof value === 'string' ? value : JSON.stringify(value)
     window.localStorage.setItem(key, serialized)
     return true
   } catch {

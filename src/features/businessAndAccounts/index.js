@@ -1,2 +1,1 @@
-export {BusinessAndAccounts} from './components/BusinessAndAccounts'
-
+export { BusinessAndAccounts } from './components/BusinessAndAccounts'

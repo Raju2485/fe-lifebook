@@ -8,7 +8,9 @@ export function UnderConstruction() {
     <div className="app-layout">
       <main className="app-layout__content">
         <div className="text-center">
-          <Typography.Title level={3}>This Page is under construction</Typography.Title>
+          <Typography.Title level={3}>
+            This Page is under construction
+          </Typography.Title>
           <Link onClick={() => navigate(-1)}>Back</Link>
           <br />
           <Link to="/dashboard">Home</Link>

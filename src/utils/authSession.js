@@ -1,4 +1,8 @@
-import { getLocalStorage, setLocalStorage, removeLocalStorage } from './localStorage'
+import {
+  getLocalStorage,
+  setLocalStorage,
+  removeLocalStorage,
+} from './localStorage'
 
 export const API_BASE_URL = 'http://localhost:3000/api/v1/'
 export const AUTH_REDIRECT_KEY = 'authRedirect'
@@ -44,7 +48,7 @@ export function dispatchSessionExpired(returnPath) {
   window.dispatchEvent(
     new CustomEvent(SESSION_EXPIRED_EVENT, {
       detail: { returnPath: path },
-    }),
+    })
   )
 }
 

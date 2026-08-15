@@ -1,7 +1,6 @@
 import './Practice.scss'
 
 function Practice() {
-  
   return (
     <div className="flex-container">
       <div className="section">

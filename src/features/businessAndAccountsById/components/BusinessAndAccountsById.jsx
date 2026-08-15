@@ -436,7 +436,7 @@ function BusinessAndAccountsById() {
                           const accTypePersonal = accTypes?.data?.filter(
                             (obj) => obj.name == 'personal'
                           )
-                          console.log('accTypePersonal = ', accTypePersonal)
+
                           form2.setFieldValue(
                             'AccTypeId',
                             accTypePersonal?.[0]?.id
@@ -445,9 +445,7 @@ function BusinessAndAccountsById() {
                         }
                       }}
                     >
-                      <Radio value={true} defaultChecked>
-                        Existing
-                      </Radio>
+                      <Radio value={true}>Existing</Radio>
                       <Radio value={false}>New</Radio>
                     </Radio.Group>
                   </FormItem>
@@ -468,13 +466,13 @@ function BusinessAndAccountsById() {
                       showSearch
                       optionFilterProp="children"
                       onSearch={(e) => onSearch(e, 'accType')}
-                      onChange={(e) => {
-                        let accType = accTypes?.data?.filter(
-                          (obj) => obj.id == accTypeId
+                      onChange={(value) => {
+                        console.log('value = ', value)
+                        const selected = accTypes?.data?.find(
+                          (obj) => obj.id === value
                         )
-                        accType = accType ? accType?.[0]?.name : ''
-                        console.log('accType = ', accType)
-                        if (accType == 'real') {
+                        console.log('selected = ', selected)
+                        if (selected?.name === 'real') {
                           form2.setFieldValue('natureOfAccount', 'cash')
                         }
                       }}
@@ -510,13 +508,70 @@ function BusinessAndAccountsById() {
                           }
                         }}
                       >
-                        <Radio value={true} checked={isUserExisting}>
-                          Yes
-                        </Radio>
+                        <Radio value={true}>Yes</Radio>
                         <Radio value={false}>No</Radio>
                       </Radio.Group>
                     </FormItem>
                   </Col>
+                )}
+                {isPerson == true && (
+                  <>
+                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                      <FormItem
+                        label="Email"
+                        name="email"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Enter Email',
+                          },
+                        ]}
+                      >
+                        <Input placeholder="Enter Email" />
+                      </FormItem>
+                    </Col>
+                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                      <FormItem
+                        label="Name"
+                        name="name"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Enter Name',
+                          },
+                        ]}
+                      >
+                        <Input placeholder="Enter Name" />
+                      </FormItem>
+                    </Col>
+
+                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                      <FormItem label="Middle Name" name="middleName">
+                        <Input placeholder="Enter Middle Name" />
+                      </FormItem>
+                    </Col>
+                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                      <FormItem label="Surname" name="surname">
+                        <Input placeholder="Enter Surname" />
+                      </FormItem>
+                    </Col>
+                  </>
+                )}
+                {isPerson == false || accType == 'nominal' || accType == 'real' && (
+                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                      <FormItem
+                        label="Account Name"
+                        name="name"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Enter Account Name',
+                          },
+                        ]}
+                      >
+                        <Input placeholder="Enter Account Name" />
+                      </FormItem>
+                    </Col>
                 )}
                 {accType == 'real' && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
@@ -537,7 +592,7 @@ function BusinessAndAccountsById() {
                     </FormItem>
                   </Col>
                 )}
-                {accType == 'personal' && !isPerson && (
+                {accType == 'personal' && isPerson == false && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
                     <FormItem
                       label="Nature of Account"
@@ -550,9 +605,7 @@ function BusinessAndAccountsById() {
                       ]}
                     >
                       <Radio.Group disabled={true}>
-                        <Radio value={'bank'} checked={true}>
-                          Bank
-                        </Radio>
+                        <Radio value={'bank'}>Bank</Radio>
                         <Radio value={'cash'}>Cash</Radio>
                       </Radio.Group>
                     </FormItem>
@@ -587,7 +640,7 @@ function BusinessAndAccountsById() {
                     </FormItem>
                   </Col>
                 )}
-                {isPerson && (
+                {isPerson == true && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
                     <FormItem
                       label="Is member?"
@@ -614,16 +667,7 @@ function BusinessAndAccountsById() {
                 )}
                 {isMember && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                    <FormItem
-                      label="Roles:"
-                      name="RolesIds"
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: 'Select Role(s)',
-                      //   },
-                      // ]}
-                    >
+                    <FormItem label="Roles:" name="RolesIds">
                       <Select
                         mode="multiple"
                         allowClear
@@ -643,26 +687,6 @@ function BusinessAndAccountsById() {
                     </FormItem>
                   </Col>
                 )}
-                {/* {!isPerson && (
-                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                    <FormItem
-                      label="Is it Cash account / Bank account / None"
-                      name="cashOrBank"
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Select Cash / Bank / None',
-                        },
-                      ]}
-                    >
-                      <Radio.Group>
-                        <Radio value={'cash'}>Cash</Radio>
-                        <Radio value={'bank'}>Bank</Radio>
-                        <Radio value={'false'}>None</Radio>
-                      </Radio.Group>
-                    </FormItem>
-                  </Col>
-                )} */}
               </Row>
             </AntCard>
 

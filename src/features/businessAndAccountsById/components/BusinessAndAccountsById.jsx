@@ -514,7 +514,7 @@ function BusinessAndAccountsById() {
                     </FormItem>
                   </Col>
                 )}
-                {isPerson == true && (
+                {(isPerson == true && isUserExisting == false) && (
                   <>
                     <Col xs={24} xl={12} span={24} md={24} sm={24}>
                       <FormItem
@@ -557,21 +557,23 @@ function BusinessAndAccountsById() {
                     </Col>
                   </>
                 )}
-                {isPerson == false || accType == 'nominal' || accType == 'real' && (
-                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                      <FormItem
-                        label="Account Name"
-                        name="name"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Enter Account Name',
-                          },
-                        ]}
-                      >
-                        <Input placeholder="Enter Account Name" />
-                      </FormItem>
-                    </Col>
+                {(isPerson === false ||
+                  accType === 'nominal' ||
+                  accType === 'real') && (
+                  <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                    <FormItem
+                      label="Account Name"
+                      name="name"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Enter Account Name',
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Enter Account Name" />
+                    </FormItem>
+                  </Col>
                 )}
                 {accType == 'real' && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>

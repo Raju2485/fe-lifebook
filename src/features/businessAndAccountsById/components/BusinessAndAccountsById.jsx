@@ -36,6 +36,8 @@ import {
   useAccTypesQuery,
   useRolesQuery,
   useUsersQuery,
+  useLazyIsAccountExistsQuery,
+  useLazyIsUserExistsQuery,
 } from '../services/apiSlice'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
@@ -100,6 +102,8 @@ function BusinessAndAccountsById() {
 
   const [open, setOpen] = useState(false)
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
+  const [isEmailTaken, setIsEmailTaken] = useState(false)
+  const [isNameTaken, setIsNameTaken] = useState(false)
 
   const { showMessage } = useShowMessage()
   const [form2] = Form.useForm()
@@ -122,6 +126,10 @@ function BusinessAndAccountsById() {
   )
 
   const [createAccount] = useCreateAccountMutation()
+  const [checkUserExists, { isFetching: isCheckingEmail }] =
+    useLazyIsUserExistsQuery()
+  const [checkAccountExists, { isFetching: isCheckingAccount }] =
+    useLazyIsAccountExistsQuery()
   const { data: accTypes } = useAccTypesQuery()
   const { data: roles } = useRolesQuery()
   const { data: users } = useUsersQuery({ orgId: id })
@@ -146,9 +154,8 @@ function BusinessAndAccountsById() {
     // Placeholder until account creation API is wired up.
   }
   const handleCreateAccountModal = () => {
-    // await form.validateFields();
+    setIsEmailTaken(false)
     setOpen(true)
-    // Placeholder until account creation API is wired up.
   }
 
   const handlePostJournalEntry = () => {
@@ -156,11 +163,93 @@ function BusinessAndAccountsById() {
   }
 
   const handleClose = () => {
+    setIsEmailTaken(false)
     setOpen(false)
+  }
+
+  const doesUserExist = (response) =>
+    response?.data === true ||
+    response?.exists === true ||
+    response?.data?.exists === true
+
+  const handleEmailBlur = async () => {
+    const email = String(form2.getFieldValue('email') ?? '').trim()
+    if (!email) {
+      setIsEmailTaken(false)
+      return
+    }
+
+    try {
+      const response = await checkUserExists({ email, orgId: id }).unwrap()
+      if (doesUserExist(response)) {
+        setIsEmailTaken(true)
+        form2.setFields([
+          {
+            name: 'email',
+            errors: [`${email} is already exists`],
+          },
+        ])
+      } else {
+        setIsEmailTaken(false)
+      }
+    } catch (error) {
+      if (doesUserExist(error?.data) || error?.status === 409) {
+        setIsEmailTaken(true)
+        form2.setFields([
+          {
+            name: 'email',
+            errors: [`${email} is already exists`],
+          },
+        ])
+        return
+      }
+      setIsEmailTaken(false)
+    }
+  }
+
+  const handleNameBlur = async () => {
+    const name = String(form2.getFieldValue('name') ?? '').trim()
+    if (!name) {
+      setIsNameTaken(false)
+      return
+    }
+
+    try {
+      const response = await checkAccountExists({ name, orgId: id }).unwrap()
+      if (doesUserExist(response)) {
+        setIsNameTaken(true)
+        form2.setFields([
+          {
+            name: 'name',
+            errors: [`${name} is already exists`],
+          },
+        ])
+      } else {
+        setIsNameTaken(false)
+      }
+    } catch (error) {
+      if (doesUserExist(error?.data) || error?.status === 409) {
+        setIsNameTaken(true)
+        form2.setFields([
+          {
+            name: 'name',
+            errors: [`${name} is already exists`],
+          },
+        ])
+        return
+      }
+      setIsNameTaken(false)
+    }
   }
 
   const onFinishModal = async () => {
     try {
+      if (isEmailTaken || isCheckingEmail) {
+        return
+      }
+      if (isNameTaken || isCheckingAccount) {
+        return
+      }
       setIsModalSubmitDisabled(true)
       const values = await form2.validateFields()
 
@@ -168,6 +257,8 @@ function BusinessAndAccountsById() {
 
       if (response?.data?.success === true) {
         form2.resetFields()
+        setIsEmailTaken(false)
+        setIsNameTaken(false)
         setOpen(false)
         showMessage({
           type: 'success',
@@ -467,13 +558,19 @@ function BusinessAndAccountsById() {
                       optionFilterProp="children"
                       onSearch={(e) => onSearch(e, 'accType')}
                       onChange={(value) => {
-                        console.log('value = ', value)
                         const selected = accTypes?.data?.find(
                           (obj) => obj.id === value
                         )
-                        console.log('selected = ', selected)
-                        if (selected?.name === 'real') {
+                        const selectedName = selected?.name
+                        if (selectedName === 'real') {
                           form2.setFieldValue('natureOfAccount', 'cash')
+                        } else if (
+                          selectedName === 'personal' &&
+                          form2.getFieldValue('isPerson') === false
+                        ) {
+                          form2.setFieldValue('natureOfAccount', 'bank')
+                        } else {
+                          form2.setFieldValue('natureOfAccount', undefined)
                         }
                       }}
                       options={
@@ -503,8 +600,10 @@ function BusinessAndAccountsById() {
                       <Radio.Group
                         disabled={isUserExisting}
                         onChange={(e) => {
-                          if (e.target.value == false) {
+                          if (e.target.value === false) {
                             form2.setFieldValue('natureOfAccount', 'bank')
+                          } else {
+                            form2.setFieldValue('natureOfAccount', undefined)
                           }
                         }}
                       >
@@ -514,7 +613,7 @@ function BusinessAndAccountsById() {
                     </FormItem>
                   </Col>
                 )}
-                {(isPerson == true && isUserExisting == false) && (
+                {isPerson == true && isUserExisting == false && (
                   <>
                     <Col xs={24} xl={12} span={24} md={24} sm={24}>
                       <FormItem
@@ -525,9 +624,31 @@ function BusinessAndAccountsById() {
                             required: true,
                             message: 'Enter Email',
                           },
+                          {
+                            validator: async () => {
+                              if (isEmailTaken) {
+                                const email = String(
+                                  form2.getFieldValue('email') ?? ''
+                                ).trim()
+                                return Promise.reject(
+                                  new Error(`${email} is already exists`)
+                                )
+                              }
+
+                              return Promise.resolve()
+                            },
+                          },
                         ]}
                       >
-                        <Input placeholder="Enter Email" />
+                        <Input
+                          placeholder="Enter Email"
+                          onBlur={handleEmailBlur}
+                          onChange={() => {
+                            if (isEmailTaken) {
+                              setIsEmailTaken(false)
+                            }
+                          }}
+                        />
                       </FormItem>
                     </Col>
                     <Col xs={24} xl={12} span={24} md={24} sm={24}>
@@ -569,9 +690,31 @@ function BusinessAndAccountsById() {
                           required: true,
                           message: 'Enter Account Name',
                         },
+                        {
+                          validator: async () => {
+                            if (isNameTaken) {
+                              const name = String(
+                                form2.getFieldValue('name') ?? ''
+                              ).trim()
+                              return Promise.reject(
+                                new Error(`${name} is already exists`)
+                              )
+                            }
+
+                            return Promise.resolve()
+                          },
+                        },
                       ]}
                     >
-                      <Input placeholder="Enter Account Name" />
+                      <Input
+                        placeholder="Enter Account Name"
+                        onBlur={handleNameBlur}
+                        onChange={() => {
+                          if (isNameTaken) {
+                            setIsNameTaken(false)
+                          }
+                        }}
+                      />
                     </FormItem>
                   </Col>
                 )}
@@ -699,7 +842,9 @@ function BusinessAndAccountsById() {
                   htmlType="submit"
                   type="primary"
                   size="medium"
-                  disabled={isModalSubmitDisabled}
+                  disabled={
+                    isModalSubmitDisabled || isEmailTaken || isCheckingEmail
+                  }
                 >
                   Submit
                 </Button>

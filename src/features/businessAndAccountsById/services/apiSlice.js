@@ -16,5 +16,7 @@ export const {
   useRolesQuery,
   useUsersQuery,
   useAccountsQuery,
+  useLazyIsUserExistsQuery,
+  useLazyIsAccountExistsQuery,
 } = api
 export const { useCreateAccountMutation } = getAccounts

@@ -81,5 +81,19 @@ export const api = createApi({
         params: name,
       }),
     }),
+    isAccountExists: build.query({
+      query: (name) => ({
+        url: '/check-if-account-exists',
+        method: 'GET',
+        params: name,
+      }),
+    }),
+    isUserExists: build.query({
+      query: (name) => ({
+        url: '/check-if-user-exists',
+        method: 'GET',
+        params: name,
+      }),
+    }),
   }),
 })

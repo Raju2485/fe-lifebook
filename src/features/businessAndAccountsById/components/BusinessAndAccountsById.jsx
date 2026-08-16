@@ -155,6 +155,7 @@ function BusinessAndAccountsById() {
   }
   const handleCreateAccountModal = () => {
     setIsEmailTaken(false)
+    setIsNameTaken(false)
     setOpen(true)
   }
 
@@ -164,6 +165,7 @@ function BusinessAndAccountsById() {
 
   const handleClose = () => {
     setIsEmailTaken(false)
+    setIsNameTaken(false)
     setOpen(false)
   }
 
@@ -186,7 +188,7 @@ function BusinessAndAccountsById() {
         form2.setFields([
           {
             name: 'email',
-            errors: [`${email} is already exists`],
+            errors: [`${email} already exists`],
           },
         ])
       } else {
@@ -198,7 +200,7 @@ function BusinessAndAccountsById() {
         form2.setFields([
           {
             name: 'email',
-            errors: [`${email} is already exists`],
+            errors: [`${email} already exists`],
           },
         ])
         return
@@ -221,7 +223,7 @@ function BusinessAndAccountsById() {
         form2.setFields([
           {
             name: 'name',
-            errors: [`${name} is already exists`],
+            errors: [`${name} already exists`],
           },
         ])
       } else {
@@ -233,7 +235,7 @@ function BusinessAndAccountsById() {
         form2.setFields([
           {
             name: 'name',
-            errors: [`${name} is already exists`],
+            errors: [`${name} already exists`],
           },
         ])
         return
@@ -563,7 +565,9 @@ function BusinessAndAccountsById() {
                         )
                         const selectedName = selected?.name
                         if (selectedName === 'real') {
-                          form2.setFieldValue('natureOfAccount', 'cash')
+                          if (form2.getFieldValue('natureOfAccount') === 'bank') {
+                            form2.setFieldValue('natureOfAccount', undefined)
+                          }
                         } else if (
                           selectedName === 'personal' &&
                           form2.getFieldValue('isPerson') === false
@@ -631,7 +635,7 @@ function BusinessAndAccountsById() {
                                   form2.getFieldValue('email') ?? ''
                                 ).trim()
                                 return Promise.reject(
-                                  new Error(`${email} is already exists`)
+                                  new Error(`${email} already exists`)
                                 )
                               }
 
@@ -697,7 +701,7 @@ function BusinessAndAccountsById() {
                                 form2.getFieldValue('name') ?? ''
                               ).trim()
                               return Promise.reject(
-                                new Error(`${name} is already exists`)
+                                new Error(`${name} already exists`)
                               )
                             }
 
@@ -720,18 +724,11 @@ function BusinessAndAccountsById() {
                 )}
                 {accType == 'real' && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                    <FormItem
-                      label="Nature of Account"
-                      name="natureOfAccount"
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Select Bank / Cash',
-                        },
-                      ]}
-                    >
-                      <Radio.Group disabled={true}>
-                        <Radio value={'bank'}>Bank</Radio>
+                    <FormItem label="Nature of Account" name="natureOfAccount">
+                      <Radio.Group>
+                        <Radio value={'bank'} disabled>
+                          Bank
+                        </Radio>
                         <Radio value={'cash'}>Cash</Radio>
                       </Radio.Group>
                     </FormItem>
@@ -843,7 +840,11 @@ function BusinessAndAccountsById() {
                   type="primary"
                   size="medium"
                   disabled={
-                    isModalSubmitDisabled || isEmailTaken || isCheckingEmail
+                    isModalSubmitDisabled ||
+                    isEmailTaken ||
+                    isCheckingEmail ||
+                    isNameTaken ||
+                    isCheckingAccount
                   }
                 >
                   Submit

@@ -271,13 +271,13 @@ function BusinessAndAccountsById() {
         setOpen(false)
         showMessage({
           type: 'success',
-          content: response?.data?.message ?? 'Organization created',
+          content: response?.data?.msg ?? 'Account created successfully!',
         })
       } else {
         showMessage({
           type: 'error',
           content:
-            response?.error?.data?.message ?? 'Failed to create organization',
+            response?.error?.data?.message ?? 'Failed to create account',
         })
       }
     } catch (info) {

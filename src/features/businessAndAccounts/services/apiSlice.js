@@ -8,6 +8,7 @@ const businessAndAccountsApi = api.injectEndpoints({
         method: 'GET',
         params: name,
       }),
+      providesTags: ['Organizations'],
     }),
     createOrg: build.mutation({
       query: (data) => ({
@@ -15,6 +16,7 @@ const businessAndAccountsApi = api.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['Organizations'],
     }),
   }),
 })

@@ -35,7 +35,7 @@ import {
   useCreateAccountMutation,
   useAccTypesQuery,
   useRolesQuery,
-  useUsersQuery,
+  useNonAccountUsersQuery,
   useLazyIsAccountExistsQuery,
   useLazyIsUserExistsQuery,
 } from '../services/apiSlice'
@@ -132,7 +132,7 @@ function BusinessAndAccountsById() {
     useLazyIsAccountExistsQuery()
   const { data: accTypes } = useAccTypesQuery()
   const { data: roles } = useRolesQuery()
-  const { data: users } = useUsersQuery({ orgId: id })
+  const { data: users } = useNonAccountUsersQuery({ orgId: id })
 
   const isMember = Form.useWatch('isMember', form2)
   const isUserExisting = Form.useWatch('isUserExisting', form2)
@@ -141,6 +141,13 @@ function BusinessAndAccountsById() {
 
   let accType = accTypes?.data?.filter((obj) => obj.id == accTypeId)
   accType = accType ? accType?.[0]?.name : ''
+
+  const accountSelectOptions = (disabledId) =>
+    accounts?.data?.map((obj) => ({
+      value: obj.id,
+      label: obj?.User ? `${obj.User.name}(${obj.User.uid})` : '',
+      disabled: disabledId != null && obj.id === disabledId,
+    })) ?? []
 
   const handleBulkUpload = () => {
     // Placeholder until bulk upload API is wired up.
@@ -318,18 +325,7 @@ function BusinessAndAccountsById() {
               <div className="accounts-by-id__account-row">
                 <Select
                   value={debitAccount}
-                  options={
-                    accounts?.data
-                      ? accounts.data.map((obj) => {
-                          return {
-                            value: obj.id,
-                            label: obj?.User
-                              ? `${obj.User.name}(${obj.User.uid})`
-                              : '',
-                          }
-                        })
-                      : []
-                  }
+                  options={accountSelectOptions(creditAccount)}
                   onChange={setDebitAccount}
                   placeholder="Select Debitor"
                   style={{ flex: 1 }}
@@ -343,18 +339,7 @@ function BusinessAndAccountsById() {
                 <span className="accounts-by-id__account-label">Cr.</span>
                 <Select
                   value={creditAccount}
-                  options={
-                    accounts?.data
-                      ? accounts.data.map((obj) => {
-                          return {
-                            value: obj.id,
-                            label: obj?.User
-                              ? `${obj.User.name}(${obj.User.uid})`
-                              : '',
-                          }
-                        })
-                      : []
-                  }
+                  options={accountSelectOptions(debitAccount)}
                   onChange={setCreditAccount}
                   placeholder="Select Creditor"
                   style={{ flex: 1 }}
@@ -768,14 +753,28 @@ function BusinessAndAccountsById() {
                       <Select
                         placeholder="Select User"
                         showSearch
-                        optionFilterProp="children"
+                        optionLabelProp="displayName"
+                        filterOption={(input, option) =>
+                          String(option?.searchText ?? '')
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
                         onSearch={(e) => onSearch(e, 'user')}
                         onChange={(e) => onChange(e, 'user')}
                         disabled={isModalSubmitDisabled}
                         options={
                           users?.data?.map((item) => ({
                             value: item.id,
-                            label: `${item.name} (${item.uid})`,
+                            displayName: `${item.name} (${item.uid})`,
+                            searchText: `${item.name} ${item.uid} ${item.email ?? ''}`,
+                            label: (
+                              <div className="accounts-by-id__user-option">
+                                <div>{`${item.name} (${item.uid})`}</div>
+                                <div className="accounts-by-id__user-option-email">
+                                  {item.email}
+                                </div>
+                              </div>
+                            ),
                           })) ?? []
                         }
                       />

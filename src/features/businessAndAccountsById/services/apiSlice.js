@@ -8,13 +8,14 @@ const getAccounts = api.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['Accounts', 'Users'],
     }),
   }),
 })
 export const {
   useAccTypesQuery,
   useRolesQuery,
-  useUsersQuery,
+  useNonAccountUsersQuery,
   useAccountsQuery,
   useLazyIsUserExistsQuery,
   useLazyIsAccountExistsQuery,

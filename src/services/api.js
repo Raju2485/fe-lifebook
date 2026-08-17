@@ -51,7 +51,7 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Post', 'User'],
+  tagTypes: ['Accounts', 'Users', 'Organizations'],
   endpoints: (build) => ({
     accTypes: build.query({
       query: (name) => ({
@@ -73,6 +73,15 @@ export const api = createApi({
         method: 'GET',
         params: name,
       }),
+      providesTags: ['Users'],
+    }),
+    nonAccountUsers: build.query({
+      query: (name) => ({
+        url: '/get-non-account-users',
+        method: 'GET',
+        params: name,
+      }),
+      providesTags: ['Users'],
     }),
     accounts: build.query({
       query: (name) => ({
@@ -80,6 +89,7 @@ export const api = createApi({
         method: 'GET',
         params: name,
       }),
+      providesTags: ['Accounts'],
     }),
     isAccountExists: build.query({
       query: (name) => ({

@@ -81,6 +81,32 @@ const SAMPLE_TRANSACTIONS = [
   },
 ]
 
+function formatAccountLabel(account) {
+  if (!account) return ''
+  if (account.User) {
+    return `${account.User.name}(${account.User.uid})`
+  }
+  return account.name ?? ''
+}
+
+function extractJournalPagination(journals) {
+  return journals?.pagination ?? journals?.data?.pagination ?? null
+}
+
+function extractJournalRecords(journals) {
+  const payload =
+    journals?.data && !Array.isArray(journals.data) ? journals.data : journals
+  const candidates = [
+    payload?.rows,
+    payload?.records,
+    payload?.entries,
+    payload?.journals,
+    payload?.data,
+    Array.isArray(journals?.data) ? journals.data : null,
+  ]
+  return candidates.find(Array.isArray) ?? []
+}
+
 const TABLE_COLUMNS = [
   { title: 'Date', dataIndex: 'date', key: 'date' },
   { title: 'Debitor', dataIndex: 'debitor', key: 'debitor' },
@@ -92,11 +118,11 @@ const TABLE_COLUMNS = [
 function BusinessAndAccountsById() {
   const [reportYear, setReportYear] = useState(2026)
   const [selectedMonth, setSelectedMonth] = useState(null)
-  const [rangeStart, setRangeStart] = useState(dayjs('2026-01-01'))
-  const [rangeEnd, setRangeEnd] = useState(dayjs('2026-01-31'))
+  const [rangeStart, setRangeStart] = useState(dayjs().startOf('year'))
+  const [rangeEnd, setRangeEnd] = useState(dayjs())
   const [searchText, setSearchText] = useState('')
-  const [currentPage, setCurrentPage] = useState(10)
-  const [pageSize, setPageSize] = useState(20)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   const [open, setOpen] = useState(false)
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
@@ -106,16 +132,6 @@ function BusinessAndAccountsById() {
   const { showMessage } = useShowMessage()
   const [form2] = Form.useForm()
   const [form] = Form.useForm()
-  const filteredTransactions = useMemo(() => {
-    const query = searchText.trim().toLowerCase()
-    if (!query) return SAMPLE_TRANSACTIONS
-
-    return SAMPLE_TRANSACTIONS.filter((row) =>
-      [row.date, row.debitor, row.creditor, row.particulars, row.amount].some(
-        (value) => value.toLowerCase().includes(query)
-      )
-    )
-  }, [searchText])
   const { id, orgName } = useParams()
 
   const { data: accounts } = useAccountsQuery(
@@ -126,7 +142,17 @@ function BusinessAndAccountsById() {
 
   const [createAccount] = useCreateAccountMutation()
   const [postJournalEntry] = usePostJournalEntryMutation()
-  const { data: journals } = useJournalsQuery({ orgId: id })
+  const { data: journals } = useJournalsQuery(
+    {
+      orgId: id,
+      page: currentPage,
+      perPage: pageSize,
+      startDate: rangeStart?.format('YYYY-MM-DD'),
+      endDate: rangeEnd?.format('YYYY-MM-DD'),
+      search: searchText.trim() || undefined,
+    },
+    { refetchOnMountOrArgChange: true }
+  )
   const [checkUserExists, { isFetching: isCheckingEmail }] =
     useLazyIsUserExistsQuery()
   const [checkAccountExists, { isFetching: isCheckingAccount }] =
@@ -151,6 +177,32 @@ function BusinessAndAccountsById() {
       label: obj?.User ? `${obj.User.name}(${obj.User.uid})` : '',
       disabled: disabledId != null && obj.id === disabledId,
     })) ?? []
+
+  const journalPagination = extractJournalPagination(journals)
+  const journalRecords = extractJournalRecords(journals)
+
+  const journalRows = useMemo(
+    () =>
+      journalRecords.map((row, index) => {
+        const dateValue = row.date ? dayjs(row.date) : null
+        return {
+          key: row.id ?? index,
+          dateValue,
+          date: dateValue ? dateValue.format(DATE_FORMAT) : '',
+          debitor: `${row.Debitor.User.name} (${row.Debitor.User.uid})`,
+
+          creditor:
+            `${row.Creditor.User.name} (${row.Creditor.User.uid})`,
+          particulars: row.particulars ?? '',
+          amount: row.amount ?? '',
+        }
+      }),
+    [journalRecords, currentPage]
+  )
+
+  const journalTotal = Number(journalPagination?.totalRecords) || 0
+  const journalPage = Number(journalPagination?.currentPage) || currentPage
+  const journalPageSize = Number(journalPagination?.totalPerPage) || pageSize
 
   const handleBulkUpload = () => {
     // Placeholder until bulk upload API is wired up.
@@ -488,14 +540,22 @@ function BusinessAndAccountsById() {
             <DatePicker
               value={rangeStart}
               format={DATE_FORMAT}
-              onChange={(value) => value && setRangeStart(value)}
+              onChange={(value) => {
+                if (!value) return
+                setRangeStart(value)
+                setCurrentPage(1)
+              }}
               allowClear={false}
             />
             <span>-</span>
             <DatePicker
               value={rangeEnd}
               format={DATE_FORMAT}
-              onChange={(value) => value && setRangeEnd(value)}
+              onChange={(value) => {
+                if (!value) return
+                setRangeEnd(value)
+                setCurrentPage(1)
+              }}
               allowClear={false}
             />
           </Flex>
@@ -505,14 +565,18 @@ function BusinessAndAccountsById() {
             placeholder="Search"
             prefix={<SearchOutlined />}
             value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
+            onChange={(event) => {
+              setSearchText(event.target.value)
+              setCurrentPage(1)
+            }}
             allowClear
           />
         </div>
 
         <Table
           columns={TABLE_COLUMNS}
-          dataSource={journals?.data ?? []}
+          dataSource={journalRows}
+          rowKey="key"
           pagination={false}
           size="middle"
           bordered
@@ -521,12 +585,12 @@ function BusinessAndAccountsById() {
         <div className="accounts-by-id__table-footer">
           <div className="accounts-by-id__pagination">
             <Pagination
-              current={currentPage}
-              pageSize={pageSize}
-              total={360}
+              current={journalPage}
+              pageSize={journalPageSize}
+              total={journalTotal}
               showSizeChanger={false}
               showQuickJumper={false}
-              onChange={setCurrentPage}
+              onChange={(page) => setCurrentPage(page)}
             />
           </div>
 
@@ -534,7 +598,10 @@ function BusinessAndAccountsById() {
             <Select
               value={pageSize}
               options={PAGE_SIZE_OPTIONS}
-              onChange={setPageSize}
+              onChange={(value) => {
+                setPageSize(value)
+                setCurrentPage(1)
+              }}
               style={{ width: 72 }}
             />
           </div>

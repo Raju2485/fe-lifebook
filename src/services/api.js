@@ -51,7 +51,7 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Accounts', 'Users', 'Organizations'],
+  tagTypes: ['Accounts', 'Users', 'Organizations', 'Journals'],
   endpoints: (build) => ({
     accTypes: build.query({
       query: (name) => ({
@@ -104,6 +104,14 @@ export const api = createApi({
         method: 'GET',
         params: name,
       }),
+    }),
+    journals: build.query({
+      query: (name) => ({
+        url: '/get-journal-entries',
+        method: 'GET',
+        params: name,
+      }),
+      providesTags: ['Journals'],
     }),
   }),
 })

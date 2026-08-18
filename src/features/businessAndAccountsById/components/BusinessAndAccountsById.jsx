@@ -38,9 +38,12 @@ import {
   useNonAccountUsersQuery,
   useLazyIsAccountExistsQuery,
   useLazyIsUserExistsQuery,
+  useJournalsQuery,
+  usePostJournalEntryMutation
 } from '../services/apiSlice'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
+const DATE_TIME_FORMAT = 'D-MMM-YYYY HH:mm:ss'
 // const ACCOUNT_OPTIONS =
 const MONTHS = [
   'Jan',
@@ -87,10 +90,6 @@ const TABLE_COLUMNS = [
 ]
 
 function BusinessAndAccountsById() {
-  const [entryDate, setEntryDate] = useState(dayjs('2026-01-01'))
-  const [debitAccount, setDebitAccount] = useState()
-  const [creditAccount, setCreditAccount] = useState()
-  const [particulars, setParticulars] = useState('')
   const [reportYear, setReportYear] = useState(2026)
   const [selectedMonth, setSelectedMonth] = useState(null)
   const [rangeStart, setRangeStart] = useState(dayjs('2026-01-01'))
@@ -98,7 +97,6 @@ function BusinessAndAccountsById() {
   const [searchText, setSearchText] = useState('')
   const [currentPage, setCurrentPage] = useState(10)
   const [pageSize, setPageSize] = useState(20)
-  const [amount, setAmount] = useState()
 
   const [open, setOpen] = useState(false)
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
@@ -107,6 +105,7 @@ function BusinessAndAccountsById() {
 
   const { showMessage } = useShowMessage()
   const [form2] = Form.useForm()
+  const [form] = Form.useForm()
   const filteredTransactions = useMemo(() => {
     const query = searchText.trim().toLowerCase()
     if (!query) return SAMPLE_TRANSACTIONS
@@ -126,6 +125,8 @@ function BusinessAndAccountsById() {
   )
 
   const [createAccount] = useCreateAccountMutation()
+  const [postJournalEntry] = usePostJournalEntryMutation()
+  const { data: journals } = useJournalsQuery({ orgId: id })
   const [checkUserExists, { isFetching: isCheckingEmail }] =
     useLazyIsUserExistsQuery()
   const [checkAccountExists, { isFetching: isCheckingAccount }] =
@@ -138,6 +139,8 @@ function BusinessAndAccountsById() {
   const isUserExisting = Form.useWatch('isUserExisting', form2)
   const isPerson = Form.useWatch('isPerson', form2)
   const accTypeId = Form.useWatch('AccTypeId', form2)
+  const debitAccount = Form.useWatch('DebitorId', form)
+  const creditAccount = Form.useWatch('CreditorId', form)
 
   let accType = accTypes?.data?.filter((obj) => obj.id == accTypeId)
   accType = accType ? accType?.[0]?.name : ''
@@ -166,8 +169,34 @@ function BusinessAndAccountsById() {
     setOpen(true)
   }
 
-  const handlePostJournalEntry = () => {
-    // Placeholder until journal entry posting API is wired up.
+  const handlePostJournalEntry = async (values) => {
+    try {
+      setIsModalSubmitDisabled(true)
+      const response = await postJournalEntry({
+        ...values,
+        date: values.date
+          ? dayjs(values.date).format('YYYY-MM-DD HH:mm:ss')
+          : undefined,
+        orgId: id,
+      })
+
+      if (response?.data?.success === true) {
+        form.resetFields()
+        showMessage({
+          type: 'success',
+          content: response?.data?.msg ?? 'Journal entry posted successfully!',
+        })
+      } else {
+        showMessage({
+          type: 'error',
+          content: response?.error?.data?.message ?? 'Failed to post journal entry',
+        })
+      }
+    } catch (info) {
+      console.log('Error posting journal entry:', info)
+    } finally {
+      setIsModalSubmitDisabled(false)
+    }
   }
 
   const handleClose = () => {
@@ -276,8 +305,7 @@ function BusinessAndAccountsById() {
       } else {
         showMessage({
           type: 'error',
-          content:
-            response?.error?.data?.message ?? 'Failed to create account',
+          content: response?.error?.data?.message ?? 'Failed to create account',
         })
       }
     } catch (info) {
@@ -304,88 +332,125 @@ function BusinessAndAccountsById() {
       </Typography.Title>
       <div className="accounts-by-id__top">
         <section className="accounts-by-id__panel accounts-by-id__journal">
-          <Typography.Title level={5} className="accounts-by-id__panel-title">
-            Journal Entry
-          </Typography.Title>
-
-          <div className="accounts-by-id__journal-body">
-            <div className="accounts-by-id__journal-fields">
-              <DatePicker
-                value={entryDate}
-                format={DATE_FORMAT}
-                onChange={(value) => value && setEntryDate(value)}
-                allowClear={false}
-              />
-              <InputNumber
-                style={{ width: '100%' }}
-                value={amount}
-                placeholder="Amount"
-                onChange={(value) => value && setAmount(amount)}
-              />
-              <div className="accounts-by-id__account-row">
-                <Select
-                  value={debitAccount}
-                  options={accountSelectOptions(creditAccount)}
-                  onChange={setDebitAccount}
-                  placeholder="Select Debitor"
-                  style={{ flex: 1 }}
-                />
-                <span className="accounts-by-id__account-label accounts-by-id__account-label--right">
-                  Dr.
-                </span>
-              </div>
-
-              <div className="accounts-by-id__account-row accounts-by-id__account-row--credit">
-                <span className="accounts-by-id__account-label">Cr.</span>
-                <Select
-                  value={creditAccount}
-                  options={accountSelectOptions(debitAccount)}
-                  onChange={setCreditAccount}
-                  placeholder="Select Creditor"
-                  style={{ flex: 1 }}
-                />
-              </div>
-
-              <TextArea
-                placeholder="Particulars"
-                value={particulars}
-                onChange={(event) => setParticulars(event.target.value)}
-              />
-            </div>
-            <div className="flex">
-              <Button
-                type="default"
-                className="flex-button"
-                icon={<DownloadOutlined />}
-                iconPlacement="end"
-                onClick={handleTemplateDownload}
-              >
-                Bulk upload template
-              </Button>
-              <Button
-                type="default"
-                className="flex-button"
-                icon={<UploadOutlined />}
-                iconPlacement="end"
-                onClick={handleBulkUpload}
-              >
-                Bulk upload
-              </Button>
-              <Button
-                type="default"
-                className="flex-button"
-                onClick={handleCreateAccountModal}
-              >
-                Create Account
-              </Button>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handlePostJournalEntry}
+            initialValues={{ date: dayjs() }}
+          >
+            <AntCard
+              title="Journal Entry"
+              className="accounts-by-id__panel-title"
+            >
+              <Row gutter={24}>
+                <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                  <FormItem
+                    name="date"
+                    rules={[{ required: true, message: 'Select Date' }]}
+                  >
+                    <DatePicker
+                      format={DATE_FORMAT}
+                      showTime
+                      allowClear={false}
+                      style={{ width: '100%' }}
+                    />
+                  </FormItem>
+                </Col>
+                <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                  <FormItem
+                    name="amount"
+                    rules={[{ required: true, message: 'Enter Amount' }]}
+                  >
+                    <InputNumber
+                      style={{ width: '100%' }}
+                      placeholder="Amount"
+                    />
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={24}>
+                <Col xs={24} xl={24} span={24} md={24} sm={24}>
+                  <div className="accounts-by-id__account-row">
+                    <FormItem
+                      name="DebitorId"
+                      rules={[{ required: true, message: 'Select Debitor' }]}
+                      style={{ flex: 1, marginBottom: 0 }}
+                    >
+                      <Select
+                        options={accountSelectOptions(creditAccount)}
+                        placeholder="Select Debitor"
+                      />
+                    </FormItem>
+                    <span className="accounts-by-id__account-label accounts-by-id__account-label--right">
+                      Dr.
+                    </span>
+                  </div>
+                </Col>
+              </Row>
+              <Row gutter={24}>
+                <Col xs={24} xl={24} span={24} md={24} sm={24}>
+                  <div className="accounts-by-id__account-row accounts-by-id__account-row--credit">
+                    <span className="accounts-by-id__account-label">Cr.</span>
+                    <FormItem
+                      name="CreditorId"
+                      rules={[{ required: true, message: 'Select Creditor' }]}
+                      style={{ flex: 1, marginBottom: 0 }}
+                    >
+                      <Select
+                        options={accountSelectOptions(debitAccount)}
+                        placeholder="Select Creditor"
+                      />
+                    </FormItem>
+                  </div>
+                </Col>
+              </Row>
+              <Row gutter={24}>
+                <Col xs={24} xl={24} span={24} md={24} sm={24}>
+                  <FormItem name="particulars">
+                    <TextArea placeholder="Particulars" />
+                  </FormItem>
+                </Col>
+              </Row>
+            </AntCard>
+            <Form.Item className="text-center">
               <Button
                 type="primary"
-                className="flex-button accounts-by-id__post-btn"
-                onClick={handlePostJournalEntry}
+                size="medium"
+                htmlType="submit"
+                disabled={isModalSubmitDisabled}
               >
                 Post Journal Entry
               </Button>
-            </div>
+            </Form.Item>
+          </Form>
+        </section>
+        <section className="accounts-by-id__panel accounts-by-id__journal">
+          <div className="flex">
+            <Button
+              type="default"
+              className="flex-button"
+              icon={<DownloadOutlined />}
+              iconPlacement="end"
+              onClick={handleTemplateDownload}
+            >
+              Bulk upload template
+            </Button>
+            <Button
+              type="default"
+              className="flex-button"
+              icon={<UploadOutlined />}
+              iconPlacement="end"
+              onClick={handleBulkUpload}
+            >
+              Bulk upload
+            </Button>
+            <Button
+              type="default"
+              className="flex-button"
+              onClick={handleCreateAccountModal}
+            >
+              Create Account
+            </Button>
           </div>
         </section>
 
@@ -447,7 +512,7 @@ function BusinessAndAccountsById() {
 
         <Table
           columns={TABLE_COLUMNS}
-          dataSource={filteredTransactions}
+          dataSource={journals?.data ?? []}
           pagination={false}
           size="middle"
           bordered
@@ -550,7 +615,9 @@ function BusinessAndAccountsById() {
                         )
                         const selectedName = selected?.name
                         if (selectedName === 'real') {
-                          if (form2.getFieldValue('natureOfAccount') === 'bank') {
+                          if (
+                            form2.getFieldValue('natureOfAccount') === 'bank'
+                          ) {
                             form2.setFieldValue('natureOfAccount', undefined)
                           }
                         } else if (

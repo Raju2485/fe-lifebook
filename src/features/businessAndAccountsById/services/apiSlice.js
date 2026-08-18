@@ -10,6 +10,14 @@ const getAccounts = api.injectEndpoints({
       }),
       invalidatesTags: ['Accounts', 'Users'],
     }),
+    postJournalEntry: build.mutation({
+      query: (data) => ({
+        url: '/post-journal-entry',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Journals'],
+    }),
   }),
 })
 export const {
@@ -19,5 +27,6 @@ export const {
   useAccountsQuery,
   useLazyIsUserExistsQuery,
   useLazyIsAccountExistsQuery,
+  useJournalsQuery,
 } = api
-export const { useCreateAccountMutation } = getAccounts
+export const { useCreateAccountMutation, usePostJournalEntryMutation } = getAccounts

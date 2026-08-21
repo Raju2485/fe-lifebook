@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import {
   Button,
@@ -170,6 +170,45 @@ function BusinessAndAccountsById() {
 
   const selectedDebitor = accounts?.data?.find((obj) => obj.id == debitAccount)
   const selectedCreditor = accounts?.data?.find((obj) => obj.id == creditAccount)
+  const lastDebitorRef = useRef()
+  const lastCreditorRef = useRef()
+
+  const getAccountTypeName = (accountId) => {
+    const account = accounts?.data?.find((obj) => obj.id == accountId)
+    return String(account?.AccTypeMaster?.name ?? '').toLowerCase()
+  }
+
+  const isRestrictedPair = (firstId, secondId) => {
+    const firstType = getAccountTypeName(firstId)
+    const secondType = getAccountTypeName(secondId)
+    if (!firstType || !secondType) return false
+    return (
+      (firstType === 'real' && secondType === 'real') ||
+      (firstType === 'nominal' && secondType === 'nominal')
+    )
+  }
+
+  const handleDebitorChange = (value) => {
+    if (isRestrictedPair(value, form.getFieldValue('CreditorId'))) {
+      Modal.warning({
+        title: "Debtor and Creditor can't be real accounts / nominal accounts",
+      })
+      form.setFieldValue('DebitorId', lastDebitorRef.current)
+      return
+    }
+    lastDebitorRef.current = value
+  }
+
+  const handleCreditorChange = (value) => {
+    if (isRestrictedPair(form.getFieldValue('DebitorId'), value)) {
+      Modal.warning({
+        title: "Debtor and Creditor can't be real accounts / nominal accounts",
+      })
+      form.setFieldValue('CreditorId', lastCreditorRef.current)
+      return
+    }
+    lastCreditorRef.current = value
+  }
 
   let accType = accTypes?.data?.filter((obj) => obj.id == accTypeId)
   accType = accType ? accType?.[0]?.name : ''
@@ -234,6 +273,8 @@ function BusinessAndAccountsById() {
 
       if (response?.data?.success === true) {
         form.resetFields()
+        lastDebitorRef.current = undefined
+        lastCreditorRef.current = undefined
         showMessage({
           type: 'success',
           content: response?.data?.msg ?? 'Journal entry posted successfully!',
@@ -426,7 +467,7 @@ function BusinessAndAccountsById() {
                 <Col xs={24} xl={12} span={24} md={24} sm={24}>
                   {/* <div className="accounts-by-id__account-row"> */}
                   <FormItem
-                    label="Debit from:"
+                    label="Debtor:"
                     name="DebitorId"
                     rules={[{ required: true, message: 'Select Debitor' }]}
                     style={{ flex: 1, marginBottom: 0 }}
@@ -447,13 +488,14 @@ function BusinessAndAccountsById() {
                     <Select
                       options={accountSelectOptions(creditAccount)}
                       placeholder="Select Debitor"
+                      onChange={handleDebitorChange}
                     />
                   </FormItem>
                   {/* </div> */}
                 </Col>
                 <Col xs={24} xl={12} span={24} md={24} sm={24}>
                   <FormItem
-                    label="Credit to:"
+                    label="Creditor:"
                     name="CreditorId"
                     rules={[{ required: true, message: 'Select Creditor' }]}
                     style={{ flex: 1, marginBottom: 0 }}
@@ -475,6 +517,7 @@ function BusinessAndAccountsById() {
                     <Select
                       options={accountSelectOptions(debitAccount)}
                       placeholder="Select Creditor"
+                      onChange={handleCreditorChange}
                     />
                   </FormItem>
                 </Col>

@@ -212,9 +212,6 @@ function BusinessAndAccountsById() {
     // Placeholder until bulk upload API is wired up.
   }
 
-  const handleCreateAccount = () => {
-    // Placeholder until account creation API is wired up.
-  }
   const handleCreateAccountModal = () => {
     setIsEmailTaken(false)
     setIsNameTaken(false)
@@ -398,9 +395,11 @@ function BusinessAndAccountsById() {
                 <Col xs={24} xl={12} span={24} md={24} sm={24}>
                   <FormItem
                     name="date"
+                    label="Date:"
                     rules={[{ required: true, message: 'Select Date' }]}
                   >
                     <DatePicker
+                      placeholder="Select Date"
                       format={DATE_FORMAT}
                       showTime
                       allowClear={false}
@@ -410,6 +409,7 @@ function BusinessAndAccountsById() {
                 </Col>
                 <Col xs={24} xl={12} span={24} md={24} sm={24}>
                   <FormItem
+                    label="Amount:"
                     name="amount"
                     rules={[{ required: true, message: 'Enter Amount' }]}
                   >
@@ -424,6 +424,7 @@ function BusinessAndAccountsById() {
                 <Col xs={24} xl={24} span={24} md={24} sm={24}>
                   <div className="accounts-by-id__account-row">
                     <FormItem
+                      label="Debit from:"
                       name="DebitorId"
                       rules={[{ required: true, message: 'Select Debitor' }]}
                       style={{ flex: 1, marginBottom: 0 }}
@@ -433,17 +434,18 @@ function BusinessAndAccountsById() {
                         placeholder="Select Debitor"
                       />
                     </FormItem>
-                    <span className="accounts-by-id__account-label accounts-by-id__account-label--right">
+                    {/* <span className="accounts-by-id__account-label accounts-by-id__account-label--right">
                       Dr.
-                    </span>
+                    </span> */}
                   </div>
                 </Col>
               </Row>
               <Row gutter={24}>
                 <Col xs={24} xl={24} span={24} md={24} sm={24}>
-                  <div className="accounts-by-id__account-row accounts-by-id__account-row--credit">
-                    <span className="accounts-by-id__account-label">Cr.</span>
+                  {/* <div className="accounts-by-id__account-row accounts-by-id__account-row--credit"> */}
+                    {/* <span className="accounts-by-id__account-label">Cr.</span> */}
                     <FormItem
+                      label="Credit to:"
                       name="CreditorId"
                       rules={[{ required: true, message: 'Select Creditor' }]}
                       style={{ flex: 1, marginBottom: 0 }}
@@ -453,12 +455,15 @@ function BusinessAndAccountsById() {
                         placeholder="Select Creditor"
                       />
                     </FormItem>
-                  </div>
+                  {/* </div> */}
                 </Col>
               </Row>
               <Row gutter={24}>
                 <Col xs={24} xl={24} span={24} md={24} sm={24}>
-                  <FormItem name="particulars">
+                  <FormItem label="Particulars:" name="particulars"
+                    rules={[{ required: true, message: 'Enter Particulars' }]}
+                    style={{ flex: 1, marginBottom: 0 }}
+                  >
                     <TextArea placeholder="Particulars" />
                   </FormItem>
                 </Col>
@@ -628,7 +633,7 @@ function BusinessAndAccountsById() {
               <Row gutter={24}>
                 <Col xs={24} xl={12} span={24} md={24} sm={24}>
                   <FormItem
-                    label="Is the User existing / new"
+                    label="Is the User existing / new:"
                     name="isUserExisting"
                     rules={[
                       {
@@ -740,7 +745,7 @@ function BusinessAndAccountsById() {
                   <>
                     <Col xs={24} xl={12} span={24} md={24} sm={24}>
                       <FormItem
-                        label="Email"
+                        label="Email:"
                         name="email"
                         rules={[
                           {
@@ -776,7 +781,7 @@ function BusinessAndAccountsById() {
                     </Col>
                     <Col xs={24} xl={12} span={24} md={24} sm={24}>
                       <FormItem
-                        label="Name"
+                        label="Name:"
                         name="name"
                         rules={[
                           {
@@ -790,12 +795,12 @@ function BusinessAndAccountsById() {
                     </Col>
 
                     <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                      <FormItem label="Middle Name" name="middleName">
+                      <FormItem label="Middle Name:" name="middleName">
                         <Input placeholder="Enter Middle Name" />
                       </FormItem>
                     </Col>
                     <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                      <FormItem label="Surname" name="surname">
+                      <FormItem label="Surname:" name="surname">
                         <Input placeholder="Enter Surname" />
                       </FormItem>
                     </Col>
@@ -806,7 +811,7 @@ function BusinessAndAccountsById() {
                   accType === 'real') && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
                     <FormItem
-                      label="Account Name"
+                      label="Account Name:"
                       name="name"
                       rules={[
                         {
@@ -843,7 +848,7 @@ function BusinessAndAccountsById() {
                 )}
                 {accType == 'real' && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                    <FormItem label="Nature of Account" name="natureOfAccount">
+                    <FormItem label="Nature of Account:" name="natureOfAccount">
                       <Radio.Group>
                         <Radio value={'bank'} disabled>
                           Bank
@@ -856,7 +861,7 @@ function BusinessAndAccountsById() {
                 {accType == 'personal' && isPerson == false && (
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
                     <FormItem
-                      label="Nature of Account"
+                      label="Nature of Account:"
                       name="natureOfAccount"
                       rules={[
                         {

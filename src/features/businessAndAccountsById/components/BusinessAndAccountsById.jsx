@@ -401,9 +401,8 @@ function BusinessAndAccountsById() {
                     <DatePicker
                       placeholder="Select Date"
                       format={DATE_FORMAT}
-                      showTime
                       allowClear={false}
-                      style={{ width: '100%' }}
+                      style={{ width: '100%', marginBottom: 0 }}
                     />
                   </FormItem>
                 </Col>
@@ -414,101 +413,69 @@ function BusinessAndAccountsById() {
                     rules={[{ required: true, message: 'Enter Amount' }]}
                   >
                     <InputNumber
-                      style={{ width: '100%' }}
+                      style={{ width: '100%', marginBottom: 0 }}
                       placeholder="Amount"
                     />
                   </FormItem>
                 </Col>
               </Row>
               <Row gutter={24}>
-                <Col xs={24} xl={24} span={24} md={24} sm={24}>
-                  <div className="accounts-by-id__account-row">
-                    <FormItem
-                      label="Debit from:"
-                      name="DebitorId"
-                      rules={[{ required: true, message: 'Select Debitor' }]}
-                      style={{ flex: 1, marginBottom: 0 }}
-                    >
-                      <Select
-                        options={accountSelectOptions(creditAccount)}
-                        placeholder="Select Debitor"
-                      />
-                    </FormItem>
-                    {/* <span className="accounts-by-id__account-label accounts-by-id__account-label--right">
-                      Dr.
-                    </span> */}
-                  </div>
-                </Col>
-              </Row>
-              <Row gutter={24}>
-                <Col xs={24} xl={24} span={24} md={24} sm={24}>
-                  {/* <div className="accounts-by-id__account-row accounts-by-id__account-row--credit"> */}
-                    {/* <span className="accounts-by-id__account-label">Cr.</span> */}
-                    <FormItem
-                      label="Credit to:"
-                      name="CreditorId"
-                      rules={[{ required: true, message: 'Select Creditor' }]}
-                      style={{ flex: 1, marginBottom: 0 }}
-                    >
-                      <Select
-                        options={accountSelectOptions(debitAccount)}
-                        placeholder="Select Creditor"
-                      />
-                    </FormItem>
+                <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                  {/* <div className="accounts-by-id__account-row"> */}
+                  <FormItem
+                    label="Debit from:"
+                    name="DebitorId"
+                    rules={[{ required: true, message: 'Select Debitor' }]}
+                    style={{ flex: 1, marginBottom: 0 }}
+                  >
+                    <Select
+                      options={accountSelectOptions(creditAccount)}
+                      placeholder="Select Debitor"
+                    />
+                  </FormItem>
                   {/* </div> */}
                 </Col>
+                <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                  <FormItem
+                    label="Credit to:"
+                    name="CreditorId"
+                    rules={[{ required: true, message: 'Select Creditor' }]}
+                    style={{ flex: 1, marginBottom: 0 }}
+                  >
+                    <Select
+                      options={accountSelectOptions(debitAccount)}
+                      placeholder="Select Creditor"
+                    />
+                  </FormItem>
+                </Col>
               </Row>
               <Row gutter={24}>
                 <Col xs={24} xl={24} span={24} md={24} sm={24}>
-                  <FormItem label="Particulars:" name="particulars"
+                  <FormItem
+                    label="Particulars:"
+                    name="particulars"
                     rules={[{ required: true, message: 'Enter Particulars' }]}
-                    style={{ flex: 1, marginBottom: 0 }}
                   >
                     <TextArea placeholder="Particulars" />
                   </FormItem>
                 </Col>
               </Row>
+              <Row gutter={24}>
+                <Col xs={24} xl={24} span={24} md={24} sm={24}>
+                  <Form.Item className="text-center">
+                    <Button
+                      type="primary"
+                      size="medium"
+                      htmlType="submit"
+                      disabled={isModalSubmitDisabled}
+                    >
+                      Post Journal Entry
+                    </Button>
+                  </Form.Item>
+                </Col>
+              </Row>
             </AntCard>
-            <Form.Item className="text-center">
-              <Button
-                type="primary"
-                size="medium"
-                htmlType="submit"
-                disabled={isModalSubmitDisabled}
-              >
-                Post Journal Entry
-              </Button>
-            </Form.Item>
           </Form>
-        </section>
-        <section className="accounts-by-id__panel accounts-by-id__journal">
-          <div className="flex">
-            <Button
-              type="default"
-              className="flex-button"
-              icon={<DownloadOutlined />}
-              iconPlacement="end"
-              onClick={handleTemplateDownload}
-            >
-              Bulk upload template
-            </Button>
-            <Button
-              type="default"
-              className="flex-button"
-              icon={<UploadOutlined />}
-              iconPlacement="end"
-              onClick={handleBulkUpload}
-            >
-              Bulk upload
-            </Button>
-            <Button
-              type="default"
-              className="flex-button"
-              onClick={handleCreateAccountModal}
-            >
-              Create Account
-            </Button>
-          </div>
         </section>
 
         <section className="accounts-by-id__panel accounts-by-id__reports">
@@ -535,6 +502,35 @@ function BusinessAndAccountsById() {
                 {month}
               </Button>
             ))}
+          </div>
+          <br />
+          <br />
+          <div className="flex">
+            <Button
+              type="default"
+              className="flex-button"
+              icon={<DownloadOutlined />}
+              iconPlacement="end"
+              onClick={handleTemplateDownload}
+            >
+              Bulk upload template
+            </Button>
+            <Button
+              type="default"
+              className="flex-button"
+              icon={<UploadOutlined />}
+              iconPlacement="end"
+              onClick={handleBulkUpload}
+            >
+              Bulk upload
+            </Button>
+            <Button
+              type="default"
+              className="flex-button"
+              onClick={handleCreateAccountModal}
+            >
+              Create Account
+            </Button>
           </div>
         </section>
       </div>

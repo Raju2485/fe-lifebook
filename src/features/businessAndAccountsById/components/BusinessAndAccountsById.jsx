@@ -168,6 +168,9 @@ function BusinessAndAccountsById() {
   const debitAccount = Form.useWatch('DebitorId', form)
   const creditAccount = Form.useWatch('CreditorId', form)
 
+  const selectedDebitor = accounts?.data?.find((obj) => obj.id == debitAccount)
+  const selectedCreditor = accounts?.data?.find((obj) => obj.id == creditAccount)
+
   let accType = accTypes?.data?.filter((obj) => obj.id == accTypeId)
   accType = accType ? accType?.[0]?.name : ''
 
@@ -427,6 +430,19 @@ function BusinessAndAccountsById() {
                     name="DebitorId"
                     rules={[{ required: true, message: 'Select Debitor' }]}
                     style={{ flex: 1, marginBottom: 0 }}
+                    extra={
+                      debitAccount ? (
+                        <div className="accounts-by-id__account-meta">
+                          <div>
+                            A/c type: {selectedDebitor?.AccTypeMaster?.name ?? '-'}
+                          </div>
+                          <div>
+                            Golden rule:{' '}
+                            {selectedDebitor?.AccTypeMaster?.goldenRule ?? '-'}
+                          </div>
+                        </div>
+                      ) : null
+                    }
                   >
                     <Select
                       options={accountSelectOptions(creditAccount)}
@@ -441,6 +457,20 @@ function BusinessAndAccountsById() {
                     name="CreditorId"
                     rules={[{ required: true, message: 'Select Creditor' }]}
                     style={{ flex: 1, marginBottom: 0 }}
+                    extra={
+                      creditAccount ? (
+                        <div className="accounts-by-id__account-meta">
+                          <div>
+                            A/c type:{' '}
+                            {selectedCreditor?.AccTypeMaster?.name ?? '-'}
+                          </div>
+                          <div>
+                            Golden rule:{' '}
+                            {selectedCreditor?.AccTypeMaster?.goldenRule ?? '-'}
+                          </div>
+                        </div>
+                      ) : null
+                    }
                   >
                     <Select
                       options={accountSelectOptions(debitAccount)}

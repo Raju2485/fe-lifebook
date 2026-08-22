@@ -28,5 +28,6 @@ export const {
   useLazyIsUserExistsQuery,
   useLazyIsAccountExistsQuery,
   useJournalsQuery,
+  useLazyBulkUploadTemplateQuery,
 } = api
 export const { useCreateAccountMutation, usePostJournalEntryMutation } = getAccounts

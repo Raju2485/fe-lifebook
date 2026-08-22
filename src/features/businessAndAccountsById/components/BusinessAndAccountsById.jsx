@@ -39,7 +39,8 @@ import {
   useLazyIsAccountExistsQuery,
   useLazyIsUserExistsQuery,
   useJournalsQuery,
-  usePostJournalEntryMutation
+  usePostJournalEntryMutation,
+  useLazyBulkUploadTemplateQuery,
 } from '../services/apiSlice'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
@@ -157,6 +158,7 @@ function BusinessAndAccountsById() {
     useLazyIsUserExistsQuery()
   const [checkAccountExists, { isFetching: isCheckingAccount }] =
     useLazyIsAccountExistsQuery()
+  const [downloadBulkUploadTemplate] = useLazyBulkUploadTemplateQuery()
   const { data: accTypes } = useAccTypesQuery()
   const { data: roles } = useRolesQuery()
   const { data: users } = useNonAccountUsersQuery({ orgId: id })
@@ -250,8 +252,35 @@ function BusinessAndAccountsById() {
     // Placeholder until bulk upload API is wired up.
   }
 
-  const handleTemplateDownload = () => {
-    // Placeholder until bulk upload API is wired up.
+  const handleTemplateDownload = async () => {
+    try {
+      const bulkUploadTemplate = await downloadBulkUploadTemplate().unwrap()
+      if (!bulkUploadTemplate) {
+        throw new Error('Template not available')
+      }
+
+      const blob =
+        bulkUploadTemplate instanceof Blob
+          ? bulkUploadTemplate
+          : new Blob([bulkUploadTemplate], {
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'bulk-upload-template.xlsx'
+      a.click()
+      window.URL.revokeObjectURL(url)
+      showMessage({
+        type: 'success',
+        content: 'Template downloaded successfully!',
+      })
+    } catch (error) {
+      showMessage({
+        type: 'error',
+        content: error?.data?.message ?? 'Failed to download template',
+      })
+    }
   }
 
   const handleCreateAccountModal = () => {

@@ -94,6 +94,17 @@
   width: 100%;
 }
 
+.accounts-by-id__upload {
+  width: 100%;
+  display: block;
+
+  .ant-upload,
+  .ant-upload-select {
+    width: 100%;
+    display: block;
+  }
+}
+
 .accounts-by-id__post-btn {
   min-height: 64px;
   height: 64px;

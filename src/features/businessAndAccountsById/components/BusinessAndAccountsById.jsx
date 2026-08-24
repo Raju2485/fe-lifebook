@@ -17,6 +17,7 @@ import {
   Col,
   Space,
   Radio,
+  Upload,
 } from 'antd'
 
 const { Item: FormItem } = Form
@@ -41,6 +42,7 @@ import {
   useJournalsQuery,
   usePostJournalEntryMutation,
   useLazyBulkUploadTemplateQuery,
+  useBulkUploadMutation,
 } from '../services/apiSlice'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
@@ -143,6 +145,7 @@ function BusinessAndAccountsById() {
 
   const [createAccount] = useCreateAccountMutation()
   const [postJournalEntry] = usePostJournalEntryMutation()
+  const [bulkUpload, { isLoading: isBulkUploading }] = useBulkUploadMutation()
   const { data: journals } = useJournalsQuery(
     {
       orgId: id,
@@ -248,13 +251,9 @@ function BusinessAndAccountsById() {
   const journalPage = Number(journalPagination?.currentPage) || currentPage
   const journalPageSize = Number(journalPagination?.totalPerPage) || pageSize
 
-  const handleBulkUpload = () => {
-    // Placeholder until bulk upload API is wired up.
-  }
-
   const handleTemplateDownload = async () => {
     try {
-      const bulkUploadTemplate = await downloadBulkUploadTemplate().unwrap()
+      const bulkUploadTemplate = await downloadBulkUploadTemplate({orgId: id}).unwrap()
       if (!bulkUploadTemplate) {
         throw new Error('Template not available')
       }
@@ -444,6 +443,44 @@ function BusinessAndAccountsById() {
     console.log('search:', value)
   }
 
+  const uploadBulkUploadTemplateProps = {
+    accept: '.xlsx,.xls',
+    showUploadList: false,
+    customRequest: async ({ file, onSuccess, onError }) => {
+      try {
+        const response = await bulkUpload({ file, orgId: id }).unwrap();
+        // console.log('response = ', response)
+        onSuccess(response)
+        if (response?.data?.success === true || response?.success === true) {
+          showMessage({
+            type: 'success',
+            content:
+              response?.data?.msg ??
+              'Bulk journals template uploaded successfully!',
+          })
+        }
+        else if (response?.msg == 'Account(s) not found') {
+
+          console.log(response)
+        } else {
+          showMessage({
+            type: 'error',
+            content:
+              response?.error?.data?.msg ??
+              response?.data?.msg ??
+              'Failed to upload bulk journals template',
+          })
+        }
+      } catch (error) {
+        onError(error)
+        showMessage({
+          type: 'error',
+          content: error?.data?.msg ?? 'Failed to upload bulk journals template',
+        })
+      }
+    },
+  }
+
   return (
     <div className="accounts-by-id">
       <Typography.Title
@@ -501,17 +538,24 @@ function BusinessAndAccountsById() {
                     rules={[{ required: true, message: 'Select Debitor' }]}
                     style={{ flex: 1, marginBottom: 0 }}
                     extra={
-                      debitAccount ? (
+                      <>
                         <div className="accounts-by-id__account-meta">
                           <div>
-                            A/c type: {selectedDebitor?.AccTypeMaster?.name ?? '-'}
+                            A/c type:{' '}
+                            {debitAccount
+                              ? (selectedDebitor?.AccTypeMaster?.name ?? '-')
+                              : '-'}
                           </div>
                           <div>
                             Golden rule:{' '}
-                            {selectedDebitor?.AccTypeMaster?.goldenRule ?? '-'}
+                            {debitAccount
+                              ? (selectedDebitor?.AccTypeMaster?.goldenRule ??
+                                '-')
+                              : '-'}
                           </div>
                         </div>
-                      ) : null
+                        <br />
+                      </>
                     }
                   >
                     <Select
@@ -529,18 +573,22 @@ function BusinessAndAccountsById() {
                     rules={[{ required: true, message: 'Select Creditor' }]}
                     style={{ flex: 1, marginBottom: 0 }}
                     extra={
-                      creditAccount ? (
+                      <>
                         <div className="accounts-by-id__account-meta">
                           <div>
                             A/c type:{' '}
-                            {selectedCreditor?.AccTypeMaster?.name ?? '-'}
+                            {creditAccount
+                              ? (selectedCreditor?.AccTypeMaster?.name ?? '-')
+                              : '-'}
                           </div>
                           <div>
                             Golden rule:{' '}
-                            {selectedCreditor?.AccTypeMaster?.goldenRule ?? '-'}
+                            {creditAccount ? selectedCreditor?.AccTypeMaster
+                              ?.goldenRule ?? '-' : '-'}
                           </div>
                         </div>
-                      ) : null
+                        <br />
+                      </>
                     }
                   >
                     <Select
@@ -617,15 +665,21 @@ function BusinessAndAccountsById() {
             >
               Bulk upload template
             </Button>
-            <Button
-              type="default"
-              className="flex-button"
-              icon={<UploadOutlined />}
-              iconPlacement="end"
-              onClick={handleBulkUpload}
+            <Upload
+              {...uploadBulkUploadTemplateProps}
+              className="accounts-by-id__upload"
             >
-              Bulk upload
-            </Button>
+              <Button
+                type="default"
+                className="flex-button"
+                icon={<UploadOutlined />}
+                iconPlacement="end"
+                loading={isBulkUploading}
+                disabled={isBulkUploading}
+              >
+                Bulk upload
+              </Button>
+            </Upload>
             <Button
               type="default"
               className="flex-button"

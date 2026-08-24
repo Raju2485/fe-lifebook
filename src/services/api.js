@@ -114,9 +114,10 @@ export const api = createApi({
       providesTags: ['Journals'],
     }),
     bulkUploadTemplate: build.query({
-      query: () => ({
+      query: (name) => ({
         url: '/download-bulk-upload-template',
         method: 'GET',
+        params: name,
         responseHandler: (response) => response.blob(),
       }),
     }),

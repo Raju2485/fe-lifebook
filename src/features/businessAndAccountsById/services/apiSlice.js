@@ -18,6 +18,22 @@ const getAccounts = api.injectEndpoints({
       }),
       invalidatesTags: ['Journals'],
     }),
+    bulkUpload: build.mutation({
+      query: ({ file, orgId }) => {
+        const formData = new FormData()
+        formData.append('file', file)
+        if (orgId) formData.append('orgId', orgId)
+        // return {
+        return {
+          url: '/import-journals-from-excel',
+          method: 'POST',
+          body: formData,
+          formData: true,
+        }
+        // }
+      },
+      invalidatesTags: ['Journals'],
+    }),
   }),
 })
 export const {
@@ -30,4 +46,8 @@ export const {
   useJournalsQuery,
   useLazyBulkUploadTemplateQuery,
 } = api
-export const { useCreateAccountMutation, usePostJournalEntryMutation } = getAccounts
+export const {
+  useCreateAccountMutation,
+  usePostJournalEntryMutation,
+  useBulkUploadMutation,
+} = getAccounts

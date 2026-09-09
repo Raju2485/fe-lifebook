@@ -163,11 +163,20 @@ function AccountFormCard({
               disabled={isPrefilled}
               onChange={(e) => {
                 if (e.target.value == true) {
-                  const accTypePersonal = accTypes?.data?.filter(
+                  const accTypePersonal = accTypes?.data?.find(
                     (obj) => obj.name == 'personal'
                   )
-                  setNestedValue('AccTypeId', accTypePersonal?.[0]?.id)
-                  setNestedValue('isPerson', true)
+                  const hasEmail = Boolean(
+                    String(
+                      form.getFieldValue(['users', prefix, 'email']) ?? ''
+                    ).trim()
+                  )
+                  setNestedValue('AccTypeId', accTypePersonal?.id)
+                  setNestedValue('isPerson', hasEmail)
+                  setNestedValue(
+                    'natureOfAccount',
+                    hasEmail ? undefined : 'bank'
+                  )
                 }
               }}
             >
@@ -464,17 +473,21 @@ function MultiUserForm({
     )?.id
     const usersValue =
       missingAccountNames.length > 0
-        ? missingAccountNames.map((obj) => ({
-            name: obj.accountName,
-            email: obj.email ?? undefined,
-            isUserExisting: obj.isUserExists,
-            ...(obj.isUserExists
-              ? {
-                  AccTypeId: personalTypeId,
-                  isPerson: true,
-                }
-              : {}),
-          }))
+        ? missingAccountNames.map((obj) => {
+            const hasEmail = Boolean(String(obj.email ?? '').trim())
+            return {
+              name: obj.accountName,
+              email: obj.email ?? undefined,
+              isUserExisting: obj.isUserExists,
+              ...(obj.isUserExists
+                ? {
+                    AccTypeId: personalTypeId,
+                    isPerson: hasEmail,
+                    natureOfAccount: hasEmail ? undefined : 'bank',
+                  }
+                : {}),
+            }
+          })
         : [{}]
     form.setFieldsValue({ users: usersValue })
   }, [multiUserFormOpen, missingAccountNames, form, accTypes])

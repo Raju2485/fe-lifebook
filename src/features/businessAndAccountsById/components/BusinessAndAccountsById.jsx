@@ -29,6 +29,7 @@ import {
 import dayjs from 'dayjs'
 import './BusinessAndAccountsById.scss'
 import TextArea from 'antd/es/input/TextArea'
+import { MultiUserForm } from './MultiUserForm.jsx'
 
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
 import {
@@ -110,6 +111,11 @@ function extractJournalRecords(journals) {
   return candidates.find(Array.isArray) ?? []
 }
 
+function isAccountsNotFoundResponse(payload) {
+  const msg = payload?.msg ?? payload?.message ?? payload?.data?.msg
+  return msg === 'Account(s) not found'
+}
+
 const TABLE_COLUMNS = [
   { title: 'Date', dataIndex: 'date', key: 'date' },
   { title: 'Debitor', dataIndex: 'debitor', key: 'debitor' },
@@ -131,7 +137,8 @@ function BusinessAndAccountsById() {
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
   const [isEmailTaken, setIsEmailTaken] = useState(false)
   const [isNameTaken, setIsNameTaken] = useState(false)
-
+  const [multiUserFormOpen, setMultiUserFormOpen] = useState(false)
+  const [missingAccountNames, setMissingAccountNames] = useState([])
   const { showMessage } = useShowMessage()
   const [form2] = Form.useForm()
   const [form] = Form.useForm()
@@ -174,7 +181,9 @@ function BusinessAndAccountsById() {
   const creditAccount = Form.useWatch('CreditorId', form)
 
   const selectedDebitor = accounts?.data?.find((obj) => obj.id == debitAccount)
-  const selectedCreditor = accounts?.data?.find((obj) => obj.id == creditAccount)
+  const selectedCreditor = accounts?.data?.find(
+    (obj) => obj.id == creditAccount
+  )
   const lastDebitorRef = useRef()
   const lastCreditorRef = useRef()
 
@@ -238,8 +247,7 @@ function BusinessAndAccountsById() {
           date: dateValue ? dateValue.format(DATE_FORMAT) : '',
           debitor: `${row.Debitor.User.name} (${row.Debitor.User.uid})`,
 
-          creditor:
-            `${row.Creditor.User.name} (${row.Creditor.User.uid})`,
+          creditor: `${row.Creditor.User.name} (${row.Creditor.User.uid})`,
           particulars: row.particulars ?? '',
           amount: row.amount ?? '',
         }
@@ -253,7 +261,9 @@ function BusinessAndAccountsById() {
 
   const handleTemplateDownload = async () => {
     try {
-      const bulkUploadTemplate = await downloadBulkUploadTemplate({orgId: id}).unwrap()
+      const bulkUploadTemplate = await downloadBulkUploadTemplate({
+        orgId: id,
+      }).unwrap()
       if (!bulkUploadTemplate) {
         throw new Error('Template not available')
       }
@@ -310,7 +320,8 @@ function BusinessAndAccountsById() {
       } else {
         showMessage({
           type: 'error',
-          content: response?.error?.data?.message ?? 'Failed to post journal entry',
+          content:
+            response?.error?.data?.message ?? 'Failed to post journal entry',
         })
       }
     } catch (info) {
@@ -412,7 +423,7 @@ function BusinessAndAccountsById() {
       setIsModalSubmitDisabled(true)
       const values = await form2.validateFields()
 
-      const response = await createAccount({ ...values, orgId: id })
+      const response = await createAccount({ accounts: [values], orgId: id })
 
       if (response?.data?.success === true) {
         form2.resetFields()
@@ -448,9 +459,22 @@ function BusinessAndAccountsById() {
     showUploadList: false,
     customRequest: async ({ file, onSuccess, onError }) => {
       try {
-        const response = await bulkUpload({ file, orgId: id }).unwrap();
-        // console.log('response = ', response)
+        const response = await bulkUpload({ file, orgId: id }).unwrap()
         onSuccess(response)
+        if (isAccountsNotFoundResponse(response)) {
+          const names = response?.data ?? []
+          console.log('missing account names', names)
+          setMissingAccountNames(names)
+          setMultiUserFormOpen(true)
+          showMessage({
+            type: 'warning',
+            content:
+              names.length > 0
+                ? `${names.length} account(s) not found. Create them, then retry bulk upload.`
+                : 'Account(s) not found',
+          })
+          return
+        }
         if (response?.data?.success === true || response?.success === true) {
           showMessage({
             type: 'success',
@@ -458,24 +482,37 @@ function BusinessAndAccountsById() {
               response?.data?.msg ??
               'Bulk journals template uploaded successfully!',
           })
-        }
-        else if (response?.msg == 'Account(s) not found') {
-
-          console.log(response)
         } else {
           showMessage({
             type: 'error',
             content:
               response?.error?.data?.msg ??
               response?.data?.msg ??
+              response?.msg ??
               'Failed to upload bulk journals template',
           })
         }
       } catch (error) {
+        const payload = error?.data ?? error
+        if (isAccountsNotFoundResponse(payload)) {
+          onSuccess(payload)
+          const names = payload?.data ?? []
+          setMissingAccountNames(names)
+          setMultiUserFormOpen(true)
+          showMessage({
+            type: 'warning',
+            content:
+              names.length > 0
+                ? `${names.length} account(s) not found. Create them, then retry bulk upload.`
+                : 'Account(s) not found',
+          })
+          return
+        }
         onError(error)
         showMessage({
           type: 'error',
-          content: error?.data?.msg ?? 'Failed to upload bulk journals template',
+          content:
+            error?.data?.msg ?? 'Failed to upload bulk journals template',
         })
       }
     },
@@ -583,8 +620,10 @@ function BusinessAndAccountsById() {
                           </div>
                           <div>
                             Golden rule:{' '}
-                            {creditAccount ? selectedCreditor?.AccTypeMaster
-                              ?.goldenRule ?? '-' : '-'}
+                            {creditAccount
+                              ? (selectedCreditor?.AccTypeMaster?.goldenRule ??
+                                '-')
+                              : '-'}
                           </div>
                         </div>
                         <br />
@@ -1153,6 +1192,16 @@ function BusinessAndAccountsById() {
           </Form>
         </div>
       </Modal>
+      {multiUserFormOpen && (
+        <MultiUserForm
+          multiUserFormOpen={multiUserFormOpen}
+          setMultiUserFormOpen={(open) => {
+            setMultiUserFormOpen(open)
+            if (!open) setMissingAccountNames([])
+          }}
+          missingAccountNames={missingAccountNames}
+        />
+      )}
     </div>
   )
 }

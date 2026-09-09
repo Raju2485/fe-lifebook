@@ -4,7 +4,7 @@ const getAccounts = api.injectEndpoints({
   endpoints: (build) => ({
     createAccount: build.mutation({
       query: (data) => ({
-        url: '/create-account',
+        url: '/create-accounts',
         method: 'POST',
         body: data,
       }),

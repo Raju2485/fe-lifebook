@@ -10,6 +10,13 @@ const signinApi = api.injectEndpoints({
         body: credentials,
       }),
     }),
+    sendResetEmail: build.mutation({
+      query: (body) => ({
+        url: '/send-password-reset-link',
+        method: 'POST',
+        body: body,
+      }),
+    }),
     signout: build.mutation({
       query: () => {
         const { refreshToken } = getAuthTokens()
@@ -23,4 +30,8 @@ const signinApi = api.injectEndpoints({
   }),
 })
 export default signinApi
-export const { useSigninMutation, useSignoutMutation } = signinApi
+export const {
+  useSigninMutation,
+  useSignoutMutation,
+  useSendResetEmailMutation,
+} = signinApi

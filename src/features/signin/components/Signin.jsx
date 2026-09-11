@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { Button, Checkbox, Form, Input, Typography } from 'antd'
-import { useSigninMutation } from '../services/apiSlice'
+import { useSigninMutation, useSendResetEmailMutation } from '../services/apiSlice'
 import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage'
 import {
   clearAuthRedirect,
@@ -11,7 +11,9 @@ import { setFlashMessage } from '../../../utils/flashMessage'
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
 
 const Signin = () => {
+  const [form] = Form.useForm();
   const [signin] = useSigninMutation()
+  const [sendResetEmail] = useSendResetEmailMutation()
   const { showMessage } = useShowMessage()
 
   const location = useLocation()
@@ -62,6 +64,7 @@ const Signin = () => {
   return (
     <div>
       <Form
+        form={form}
         name="basic"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
@@ -79,7 +82,10 @@ const Signin = () => {
         <Form.Item
           label="Email"
           name="email"
-          rules={[{ required: true, message: 'Please input your username!' }]}
+          rules={[
+            { required: true, message: 'Please input your email!' },
+            { type: 'email', message: 'Please input a valid email!' },
+          ]}
         >
           <Input />
         </Form.Item>
@@ -98,9 +104,35 @@ const Signin = () => {
 
         <Form.Item label={null}>
           <Button type="primary" htmlType="submit">
-            Submit
+            Sign in
           </Button>
         </Form.Item>
+
+        <Form.Item label={null}>
+          <Typography.Text>
+            Don't have an account? <Link to="/signup">Sign up</Link>
+          </Typography.Text>
+          <br />
+          <Typography.Text>
+            Forgot password? <Button
+              style={{ padding: '2px', marginTop: '10px' }}
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  const validated = await form.validateFields(['email']);
+                  console.log('validated = ', validated)
+                  const email = form.getFieldValue('email');
+                  const res = await sendResetEmail({ email: email }).unwrap();
+                  showMessage({ type: 'success', content: res?.msg ?? '' })
+                } catch (err) {
+                  showMessage({ type: 'error', content: err?.data?.msg ?? '' })
+                console.log(err)
+                }
+              }}
+            >Email reset link</Button>
+          </Typography.Text>
+        </Form.Item>
+
       </Form>
     </div>
   )

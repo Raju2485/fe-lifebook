@@ -483,13 +483,15 @@ function BusinessAndAccountsById() {
               'Bulk journals template uploaded successfully!',
           })
         } else {
+          const message = response?.error?.data?.msg ? Array.isArray(response?.error?.data?.msg) ? <ol> {response?.error?.data?.msg.map((err) => <li key={err}>{err}</li>)}</ol> : response?.error?.data?.msg : 'Failed to upload bulk journals template'
           showMessage({
             type: 'error',
-            content:
-              response?.error?.data?.msg ??
-              response?.data?.msg ??
-              response?.msg ??
-              'Failed to upload bulk journals template',
+            // content:
+            //   response?.error?.data?.msg ??
+            //   response?.data?.msg ??
+            //   response?.msg ??
+            //   'Failed to upload bulk journals template',
+            content: message,
           })
         }
       } catch (error) {
@@ -509,10 +511,11 @@ function BusinessAndAccountsById() {
           return
         }
         onError(error)
+        const message = error?.data?.msg ? Array.isArray(error?.data?.msg) ? <ol> {error.data.msg.map((err) => <li key={err}>{err}</li>)}</ol> : error.data.msg : 'Failed to upload bulk journals template'
         showMessage({
           type: 'error',
-          content:
-            error?.data?.msg ?? 'Failed to upload bulk journals template',
+          // content: error?.data?.msg ?? 'Failed to upload bulk journals template',
+          content: message,
         })
       }
     },

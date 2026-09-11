@@ -501,33 +501,52 @@ function MultiUserForm({
     try {
       setIsModalSubmitDisabled(true)
       const accountsToCreate = values.users ?? []
-      let createdCount = 0
-      const failedNames = []
-
-      for (const account of accountsToCreate) {
-        const response = await createAccount({ ...account, orgId: id })
-        if (response?.data?.success === true) {
-          createdCount += 1
-        } else {
-          failedNames.push(
-            account.name ?? response?.error?.data?.message ?? 'Unknown account'
-          )
-        }
-      }
-
-      if (failedNames.length === 0) {
+        const response = await createAccount({
+          accounts: accountsToCreate,
+          orgId: id,
+        })
+      if (response?.data?.success === true) {
         form.resetFields()
         setMultiUserFormOpen(false)
         showMessage({
           type: 'success',
-          content: `${createdCount} account(s) created successfully. Retry bulk upload.`,
+          content: response?.data?.msg ?? 'Account(s) created successfully, retry bulk upload',
         })
       } else {
         showMessage({
           type: 'error',
-          content: `Created ${createdCount}. Failed: ${failedNames.join(', ')}`,
+          content: response?.data?.msg ?? 'Failed to create accounts',
         })
       }
+
+      
+      // let createdCount = 0
+      // const failedNames = []
+
+      // for (const account of accountsToCreate) {
+      //   const response = await createAccount({ ...account, orgId: id })
+      //   if (response?.data?.success === true) {
+      //     createdCount += 1
+      //   } else {
+      //     failedNames.push(
+      //       account.name ?? response?.error?.data?.message ?? 'Unknown account'
+      //     )
+      //   }
+      // }
+
+      // if (failedNames.length === 0) {
+      //   form.resetFields()
+      //   setMultiUserFormOpen(false)
+      //   showMessage({
+      //     type: 'success',
+      //     content: `${createdCount} account(s) created successfully. Retry bulk upload.`,
+      //   })
+      // } else {
+      //   showMessage({
+      //     type: 'error',
+      //     content: `Created ${createdCount}. Failed: ${failedNames.join(', ')}`,
+      //   })
+      // }
     } catch (info) {
       console.log('Validate Failed:', info)
       showMessage({

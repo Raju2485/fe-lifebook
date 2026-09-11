@@ -33,7 +33,7 @@ const ResetPassword = () => {
         setFlashMessage({ type: 'success', content: res?.msg ?? '' })
         navigate('/', { replace: true })
     } catch (err) {
-      
+
       showMessage({ type: 'error', content: err?.data?.msg ?? '' })
       console.log(err)
     }
@@ -60,7 +60,7 @@ const ResetPassword = () => {
         autoComplete="off"
       >
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Typography.Text>Reset your password</Typography.Text>
+          <Typography.Title level={5}>Reset your password</Typography.Title>
         </Form.Item>
 
         <Form.Item

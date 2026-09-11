@@ -9,9 +9,9 @@ export function MessageProvider({ children }) {
   const location = useLocation()
 
   const showMessage = useCallback(
-    ({ type, content }) => {
+    ({ type, content, key }) => {
       if (content) {
-        messageApi.open({ type, content })
+        messageApi.open({ type, content, ...(key ? { key } : {}) })
       }
     },
     [messageApi]

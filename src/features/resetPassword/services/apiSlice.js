@@ -2,7 +2,7 @@ import { api } from '../../../services/api'
 
 const resetPasswordApi = api.injectEndpoints({
   endpoints: (build) => ({
-    createOrg: build.mutation({
+    resetPassword: build.mutation({
       query: (credentials) => ({
         url: '/reset-password',
         method: 'POST',

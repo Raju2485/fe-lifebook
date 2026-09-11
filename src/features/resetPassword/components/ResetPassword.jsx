@@ -1,23 +1,28 @@
+import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Button, Checkbox, Form, Input, Typography } from 'antd'
+import { Button, Form, Input, Typography } from 'antd'
 import { useResetPasswordMutation } from '../services/apiSlice.js'
-
-
 import { setFlashMessage } from '../../../utils/flashMessage.js'
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
 
 const ResetPassword = () => {
-  const [searchParams] = useSearchParams();
-  const email = searchParams.get('email');
-  const hash = searchParams.get('hash');
-  if (!email || !hash) {
-    showMessage({ type: 'error', content: 'Invalid link' })
-  }
-  const [form] = Form.useForm();
+  const [searchParams] = useSearchParams()
+  const email = searchParams.get('email')
+  const hash = searchParams.get('hash')
+  const [form] = Form.useForm()
   const [resetPassword] = useResetPasswordMutation()
   const { showMessage } = useShowMessage()
-
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!email || !hash) {
+      showMessage({
+        type: 'error',
+        content: 'Invalid link',
+        key: 'invalid-reset-link',
+      })
+    }
+  }, [email, hash, showMessage])
 
 
   const onFinish = async () => {
@@ -28,6 +33,7 @@ const ResetPassword = () => {
         setFlashMessage({ type: 'success', content: res?.msg ?? '' })
         navigate('/', { replace: true })
     } catch (err) {
+      
       showMessage({ type: 'error', content: err?.data?.msg ?? '' })
       console.log(err)
     }

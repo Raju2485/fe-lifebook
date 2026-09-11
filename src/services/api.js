@@ -121,5 +121,12 @@ export const api = createApi({
         responseHandler: (response) => response.blob(),
       }),
     }),
+    getYearsAndMonths: build.query({
+      query: (name) => ({
+        url: '/get-years-and-months',
+        method: 'GET',
+        params: name,
+      }),
+    }),
   }),
 })

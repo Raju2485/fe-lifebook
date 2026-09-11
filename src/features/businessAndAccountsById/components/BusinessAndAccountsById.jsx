@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import { useParams } from 'react-router'
 import {
   Button,
@@ -44,6 +44,7 @@ import {
   usePostJournalEntryMutation,
   useLazyBulkUploadTemplateQuery,
   useBulkUploadMutation,
+  useGetYearsAndMonthsQuery,
 } from '../services/apiSlice'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
@@ -125,7 +126,8 @@ const TABLE_COLUMNS = [
 ]
 
 function BusinessAndAccountsById() {
-  const [reportYear, setReportYear] = useState(2026)
+  const [reportYear, setReportYear] = useState()
+  const [months, setMonths] = useState([])
   const [selectedMonth, setSelectedMonth] = useState(null)
   const [rangeStart, setRangeStart] = useState(dayjs().startOf('year'))
   const [rangeEnd, setRangeEnd] = useState(dayjs())
@@ -142,12 +144,13 @@ function BusinessAndAccountsById() {
   const { showMessage } = useShowMessage()
   const [form2] = Form.useForm()
   const [form] = Form.useForm()
-  const { id, orgName } = useParams()
+  const { id, orgName } = useParams();
+  const [accountSearch, setAccountSearch] = useState();
 
   const { data: accounts } = useAccountsQuery(
     // { count: 5 },
     // This option forces a refetch on component mount
-    { refetchOnMountOrArgChange: true, orgId: id }
+    { refetchOnMountOrArgChange: true, orgId: id, search: accountSearch }
   )
 
   const [createAccount] = useCreateAccountMutation()
@@ -172,6 +175,17 @@ function BusinessAndAccountsById() {
   const { data: accTypes } = useAccTypesQuery()
   const { data: roles } = useRolesQuery()
   const { data: users } = useNonAccountUsersQuery({ orgId: id })
+  const { data: yearsAndMonths } = useGetYearsAndMonthsQuery({ orgId: id, type: 'financial-reports' })
+  useEffect(() => {
+    setReportYear(yearsAndMonths?.data?.[0]?.year ?? null)
+  }, [yearsAndMonths]);
+  
+  useEffect(() => {
+    setMonths(
+      yearsAndMonths?.data?.find((item) => item.year === reportYear)?.months ??
+      null
+    )
+  }, [reportYear, yearsAndMonths?.data]);
 
   const isMember = Form.useWatch('isMember', form2)
   const isUserExisting = Form.useWatch('isUserExisting', form2)
@@ -450,8 +464,16 @@ function BusinessAndAccountsById() {
   const onChange = (value) => {
     console.log(`selected ${value}`)
   }
-  const onSearch = (value) => {
-    console.log('search:', value)
+
+  const onSearch = async(value, type) => {
+    console.log('search:', value, type)
+    try{
+    if (type === 'debtor' || type === 'creditor') {
+      setAccountSearch(value)
+    }
+    } catch (error) {
+      console.log('Error searching:', error)
+    }
   }
 
   const uploadBulkUploadTemplateProps = {
@@ -600,8 +622,11 @@ function BusinessAndAccountsById() {
                   >
                     <Select
                       options={accountSelectOptions(creditAccount)}
-                      placeholder="Select Debitor"
+                      placeholder="Select Debtor"
                       onChange={handleDebitorChange}
+                      showSearch
+                      optionFilterProp="label"
+                      onSearch={(value) => onSearch(value, 'debtor')}
                     />
                   </FormItem>
                   {/* </div> */}
@@ -637,6 +662,9 @@ function BusinessAndAccountsById() {
                       options={accountSelectOptions(debitAccount)}
                       placeholder="Select Creditor"
                       onChange={handleCreditorChange}
+                      showSearch
+                      optionFilterProp="label"
+                      onSearch={(value) => onSearch(value, 'creditor')}
                     />
                   </FormItem>
                 </Col>
@@ -677,14 +705,17 @@ function BusinessAndAccountsById() {
             </Typography.Title>
             <Select
               value={reportYear}
-              options={YEAR_OPTIONS}
-              onChange={setReportYear}
+              options={yearsAndMonths?.data?.map((item) => ({
+                value: item.year,
+                label: item.year,
+              }))}
+              onChange={(value) => setReportYear(value)}
               style={{ width: 88 }}
             />
           </div>
 
           <div className="accounts-by-id__month-grid">
-            {MONTHS.map((month) => (
+            {months?.length > 0 ? months.map((month) => (
               <Button
                 key={month}
                 type={selectedMonth === month ? 'primary' : 'default'}
@@ -693,7 +724,7 @@ function BusinessAndAccountsById() {
               >
                 {month}
               </Button>
-            ))}
+            )) : <Typography.Text>No months found for this year {reportYear}</Typography.Text>}
           </div>
           <br />
           <br />
@@ -1092,7 +1123,7 @@ function BusinessAndAccountsById() {
                             .toLowerCase()
                             .includes(input.toLowerCase())
                         }
-                        onSearch={(e) => onSearch(e, 'user')}
+                        onSearch={(value) => onSearch(value, 'user')}
                         onChange={(e) => onChange(e, 'user')}
                         disabled={isModalSubmitDisabled}
                         options={

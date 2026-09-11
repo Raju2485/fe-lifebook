@@ -45,6 +45,7 @@ export const {
   useLazyIsAccountExistsQuery,
   useJournalsQuery,
   useLazyBulkUploadTemplateQuery,
+  useGetYearsAndMonthsQuery,
 } = api
 export const {
   useCreateAccountMutation,

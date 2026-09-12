@@ -781,6 +781,13 @@ function BusinessAndAccountsById() {
               <Button
                 type="default"
                 className="flex-button"
+                onClick={handleCreateAccountModal}
+              >
+                Create Account
+              </Button>
+              <Button
+                type="default"
+                className="flex-button"
                 icon={<DownloadOutlined />}
                 iconPlacement="end"
                 onClick={handleTemplateDownload}
@@ -812,13 +819,6 @@ function BusinessAndAccountsById() {
                   Submit
                 </Button>
               </div>
-              <Button
-                type="default"
-                className="flex-button"
-                onClick={handleCreateAccountModal}
-              >
-                Create Account
-              </Button>
             </div>
           </section>
         </section>

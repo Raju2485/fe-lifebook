@@ -16,7 +16,7 @@ const getAccounts = api.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Journals'],
+      invalidatesTags: ['Journals', 'YearsAndMonths'],
     }),
     bulkUpload: build.mutation({
       query: ({ file, orgId }) => {
@@ -32,7 +32,7 @@ const getAccounts = api.injectEndpoints({
         }
         // }
       },
-      invalidatesTags: ['Journals'],
+      invalidatesTags: ['Journals', 'YearsAndMonths'],
     }),
   }),
 })

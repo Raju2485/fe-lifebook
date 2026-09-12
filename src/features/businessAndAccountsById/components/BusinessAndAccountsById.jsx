@@ -144,8 +144,8 @@ function BusinessAndAccountsById() {
   const { showMessage } = useShowMessage()
   const [form2] = Form.useForm()
   const [form] = Form.useForm()
-  const { id, orgName } = useParams();
-  const [accountSearch, setAccountSearch] = useState();
+  const { id, orgName } = useParams()
+  const [accountSearch, setAccountSearch] = useState()
 
   const { data: accounts } = useAccountsQuery(
     // { count: 5 },
@@ -175,17 +175,20 @@ function BusinessAndAccountsById() {
   const { data: accTypes } = useAccTypesQuery()
   const { data: roles } = useRolesQuery()
   const { data: users } = useNonAccountUsersQuery({ orgId: id })
-  const { data: yearsAndMonths } = useGetYearsAndMonthsQuery({ orgId: id, type: 'financial-reports' })
+  const { data: yearsAndMonths } = useGetYearsAndMonthsQuery({
+    orgId: id,
+    type: 'financial-reports',
+  })
   useEffect(() => {
     setReportYear(yearsAndMonths?.data?.[0]?.year ?? null)
-  }, [yearsAndMonths]);
-  
+  }, [yearsAndMonths])
+
   useEffect(() => {
     setMonths(
       yearsAndMonths?.data?.find((item) => item.year === reportYear)?.months ??
-      null
+        null
     )
-  }, [reportYear, yearsAndMonths?.data]);
+  }, [reportYear, yearsAndMonths?.data])
 
   const isMember = Form.useWatch('isMember', form2)
   const isUserExisting = Form.useWatch('isUserExisting', form2)
@@ -465,12 +468,12 @@ function BusinessAndAccountsById() {
     console.log(`selected ${value}`)
   }
 
-  const onSearch = async(value, type) => {
+  const onSearch = async (value, type) => {
     console.log('search:', value, type)
-    try{
-    if (type === 'debtor' || type === 'creditor') {
-      setAccountSearch(value)
-    }
+    try {
+      if (type === 'debtor' || type === 'creditor') {
+        setAccountSearch(value)
+      }
     } catch (error) {
       console.log('Error searching:', error)
     }
@@ -505,7 +508,20 @@ function BusinessAndAccountsById() {
               'Bulk journals template uploaded successfully!',
           })
         } else {
-          const message = response?.error?.data?.msg ? Array.isArray(response?.error?.data?.msg) ? <ol> {response?.error?.data?.msg.map((err) => <li key={err}>{err}</li>)}</ol> : response?.error?.data?.msg : 'Failed to upload bulk journals template'
+          const message = response?.error?.data?.msg ? (
+            Array.isArray(response?.error?.data?.msg) ? (
+              <ol>
+                {' '}
+                {response?.error?.data?.msg.map((err) => (
+                  <li key={err}>{err}</li>
+                ))}
+              </ol>
+            ) : (
+              response?.error?.data?.msg
+            )
+          ) : (
+            'Failed to upload bulk journals template'
+          )
           showMessage({
             type: 'error',
             // content:
@@ -533,7 +549,20 @@ function BusinessAndAccountsById() {
           return
         }
         onError(error)
-        const message = error?.data?.msg ? Array.isArray(error?.data?.msg) ? <ol> {error.data.msg.map((err) => <li key={err}>{err}</li>)}</ol> : error.data.msg : 'Failed to upload bulk journals template'
+        const message = error?.data?.msg ? (
+          Array.isArray(error?.data?.msg) ? (
+            <ol>
+              {' '}
+              {error.data.msg.map((err) => (
+                <li key={err}>{err}</li>
+              ))}
+            </ol>
+          ) : (
+            error.data.msg
+          )
+        ) : (
+          'Failed to upload bulk journals template'
+        )
         showMessage({
           type: 'error',
           // content: error?.data?.msg ?? 'Failed to upload bulk journals template',
@@ -585,6 +614,7 @@ function BusinessAndAccountsById() {
                     rules={[{ required: true, message: 'Enter Amount' }]}
                   >
                     <InputNumber
+                      min={0.1}
                       style={{ width: '100%', marginBottom: 0 }}
                       placeholder="Amount"
                     />
@@ -698,69 +728,84 @@ function BusinessAndAccountsById() {
           </Form>
         </section>
 
-        <section className="accounts-by-id__panel accounts-by-id__reports">
-          <div className="accounts-by-id__reports-header">
-            <Typography.Title level={5} className="accounts-by-id__panel-title">
-              Financial Reports:
-            </Typography.Title>
-            <Select
-              value={reportYear}
-              options={yearsAndMonths?.data?.map((item) => ({
-                value: item.year,
-                label: item.year,
-              }))}
-              onChange={(value) => setReportYear(value)}
-              style={{ width: 88 }}
-            />
-          </div>
-
-          <div className="accounts-by-id__month-grid">
-            {months?.length > 0 ? months.map((month) => (
-              <Button
-                key={month}
-                type={selectedMonth === month ? 'primary' : 'default'}
-                className="accounts-by-id__month-btn"
-                onClick={() => setSelectedMonth(month)}
+        <section>
+          <section className="accounts-by-id__panel accounts-by-id__reports">
+            <div className="accounts-by-id__reports-header">
+              <Typography.Title
+                level={5}
+                className="accounts-by-id__panel-title"
               >
-                {month}
-              </Button>
-            )) : <Typography.Text>No months found for this year {reportYear}</Typography.Text>}
-          </div>
+                Financial Reports:
+              </Typography.Title>
+              <Select
+                value={reportYear}
+                options={yearsAndMonths?.data?.map((item) => ({
+                  value: item.year,
+                  label: item.year,
+                }))}
+                onChange={(value) => setReportYear(value)}
+                style={{ width: 88 }}
+              />
+            </div>
+
+            <div className="accounts-by-id__month-grid">
+              {months?.length > 0 ? (
+                months.map((month) => (
+                  <Button
+                    key={month}
+                    type={selectedMonth === month ? 'primary' : 'default'}
+                    className="accounts-by-id__month-btn"
+                    onClick={() => setSelectedMonth(month)}
+                  >
+                    {month}
+                  </Button>
+                ))
+              ) : (
+                <Typography.Text>
+                  No months found for this year {reportYear}
+                </Typography.Text>
+              )}
+            </div>
+            <br />
+            <br />
+          </section>
           <br />
           <br />
-          <div className="flex">
-            <Button
-              type="default"
-              className="flex-button"
-              icon={<DownloadOutlined />}
-              iconPlacement="end"
-              onClick={handleTemplateDownload}
-            >
-              Bulk upload template
-            </Button>
-            <Upload
-              {...uploadBulkUploadTemplateProps}
-              className="accounts-by-id__upload"
-            >
+          <section className="accounts-by-id__panel accounts-by-id__reports">
+            <div className="flex">
               <Button
                 type="default"
                 className="flex-button"
-                icon={<UploadOutlined />}
+                icon={<DownloadOutlined />}
                 iconPlacement="end"
-                loading={isBulkUploading}
-                disabled={isBulkUploading}
+                onClick={handleTemplateDownload}
               >
-                Bulk upload
+                Bulk upload template
               </Button>
-            </Upload>
-            <Button
-              type="default"
-              className="flex-button"
-              onClick={handleCreateAccountModal}
-            >
-              Create Account
-            </Button>
-          </div>
+              <Upload
+                {...uploadBulkUploadTemplateProps}
+                className="accounts-by-id__upload"
+              >
+                <Button
+                  type="default"
+                  className="flex-button"
+                  icon={<UploadOutlined />}
+                  iconPlacement="end"
+                  loading={isBulkUploading}
+                  disabled={isBulkUploading}
+                >
+                  Bulk upload
+                </Button>
+              </Upload>
+              <Button
+                type="default"
+                className="flex-button"
+                onClick={handleCreateAccountModal}
+              >
+                Create Account
+              </Button>
+            </div>
+          </section>
         </section>
       </div>
 

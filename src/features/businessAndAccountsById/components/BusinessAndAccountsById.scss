@@ -94,8 +94,16 @@
   width: 100%;
 }
 
-.accounts-by-id__upload {
+.accounts-by-id__bulk-upload-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
   width: 100%;
+}
+
+.accounts-by-id__upload {
+  flex: 1;
+  min-width: 0;
   display: block;
 
   .ant-upload,
@@ -103,6 +111,11 @@
     width: 100%;
     display: block;
   }
+}
+
+.accounts-by-id__bulk-submit {
+  flex: 0 0 auto;
+  width: auto;
 }
 
 .accounts-by-id__post-btn {

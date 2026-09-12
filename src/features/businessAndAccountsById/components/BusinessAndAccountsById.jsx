@@ -141,6 +141,7 @@ function BusinessAndAccountsById() {
   const [isNameTaken, setIsNameTaken] = useState(false)
   const [multiUserFormOpen, setMultiUserFormOpen] = useState(false)
   const [missingAccountNames, setMissingAccountNames] = useState([])
+  const [bulkFileList, setBulkFileList] = useState([])
   const { showMessage } = useShowMessage()
   const [form2] = Form.useForm()
   const [form] = Form.useForm()
@@ -481,95 +482,99 @@ function BusinessAndAccountsById() {
 
   const uploadBulkUploadTemplateProps = {
     accept: '.xlsx,.xls',
-    showUploadList: false,
-    customRequest: async ({ file, onSuccess, onError }) => {
-      try {
-        const response = await bulkUpload({ file, orgId: id }).unwrap()
-        onSuccess(response)
-        if (isAccountsNotFoundResponse(response)) {
-          const names = response?.data ?? []
-          console.log('missing account names', names)
-          setMissingAccountNames(names)
-          setMultiUserFormOpen(true)
-          showMessage({
-            type: 'warning',
-            content:
-              names.length > 0
-                ? `${names.length} account(s) not found. Create them, then retry bulk upload.`
-                : 'Account(s) not found',
-          })
-          return
-        }
-        if (response?.data?.success === true || response?.success === true) {
-          showMessage({
-            type: 'success',
-            content:
-              response?.data?.msg ??
-              'Bulk journals template uploaded successfully!',
-          })
-        } else {
-          const message = response?.error?.data?.msg ? (
-            Array.isArray(response?.error?.data?.msg) ? (
-              <ol>
-                {' '}
-                {response?.error?.data?.msg.map((err) => (
-                  <li key={err}>{err}</li>
-                ))}
-              </ol>
-            ) : (
-              response?.error?.data?.msg
-            )
-          ) : (
-            'Failed to upload bulk journals template'
-          )
-          showMessage({
-            type: 'error',
-            // content:
-            //   response?.error?.data?.msg ??
-            //   response?.data?.msg ??
-            //   response?.msg ??
-            //   'Failed to upload bulk journals template',
-            content: message,
-          })
-        }
-      } catch (error) {
-        const payload = error?.data ?? error
-        if (isAccountsNotFoundResponse(payload)) {
-          onSuccess(payload)
-          const names = payload?.data ?? []
-          setMissingAccountNames(names)
-          setMultiUserFormOpen(true)
-          showMessage({
-            type: 'warning',
-            content:
-              names.length > 0
-                ? `${names.length} account(s) not found. Create them, then retry bulk upload.`
-                : 'Account(s) not found',
-          })
-          return
-        }
-        onError(error)
-        const message = error?.data?.msg ? (
-          Array.isArray(error?.data?.msg) ? (
+    maxCount: 1,
+    fileList: bulkFileList,
+    disabled: isBulkUploading,
+    beforeUpload: (file) => {
+      setBulkFileList([file])
+      return false
+    },
+    onRemove: () => {
+      if (isBulkUploading) return false
+      setBulkFileList([])
+    },
+  }
+
+  const handleBulkUploadSubmit = async () => {
+    const selected = bulkFileList[0]
+    const file = selected?.originFileObj ?? selected
+    if (!file) return
+
+    try {
+      const response = await bulkUpload({ file, orgId: id }).unwrap()
+      if (isAccountsNotFoundResponse(response)) {
+        const names = response?.data ?? []
+        setMissingAccountNames(names)
+        setMultiUserFormOpen(true)
+        showMessage({
+          type: 'warning',
+          content:
+            names.length > 0
+              ? `${names.length} account(s) not found. Create them, then retry bulk upload.`
+              : 'Account(s) not found',
+        })
+        return
+      }
+      if (response?.data?.success === true || response?.success === true) {
+        setBulkFileList([])
+        showMessage({
+          type: 'success',
+          content:
+            response?.data?.msg ??
+            'Bulk journals entries uploaded successfully!',
+        })
+      } else {
+        const message = response?.error?.data?.msg ? (
+          Array.isArray(response?.error?.data?.msg) ? (
             <ol>
-              {' '}
-              {error.data.msg.map((err) => (
+              {response?.error?.data?.msg.map((err) => (
                 <li key={err}>{err}</li>
               ))}
             </ol>
           ) : (
-            error.data.msg
+            response?.error?.data?.msg
           )
         ) : (
-          'Failed to upload bulk journals template'
+          'Failed to upload bulk journals entries.'
         )
         showMessage({
           type: 'error',
-          // content: error?.data?.msg ?? 'Failed to upload bulk journals template',
           content: message,
         })
       }
-    },
+    } catch (error) {
+      const payload = error?.data ?? error
+      if (isAccountsNotFoundResponse(payload)) {
+        const names = payload?.data ?? []
+        setMissingAccountNames(names)
+        setMultiUserFormOpen(true)
+        showMessage({
+          type: 'warning',
+          content:
+            names.length > 0
+              ? `${names.length} account(s) not found. Create them, then retry bulk upload.`
+              : 'Account(s) not found',
+        })
+        return
+      }
+      const message = error?.data?.msg ? (
+        Array.isArray(error?.data?.msg) ? (
+          <ol>
+            {error.data.msg.map((err) => (
+              <li key={err}>{err}</li>
+            ))}
+          </ol>
+        ) : (
+          error.data.msg
+        )
+      ) : (
+        'Failed to upload bulk journals entries'
+      )
+      showMessage({
+        type: 'error',
+        content: message,
+      })
+    }
   }
 
   return (
@@ -782,21 +787,31 @@ function BusinessAndAccountsById() {
               >
                 Bulk upload template
               </Button>
-              <Upload
-                {...uploadBulkUploadTemplateProps}
-                className="accounts-by-id__upload"
-              >
-                <Button
-                  type="default"
-                  className="flex-button"
-                  icon={<UploadOutlined />}
-                  iconPlacement="end"
-                  loading={isBulkUploading}
-                  disabled={isBulkUploading}
+              <div className="accounts-by-id__bulk-upload-row">
+                <Upload
+                  {...uploadBulkUploadTemplateProps}
+                  className="accounts-by-id__upload"
                 >
-                  Bulk upload
+                  <Button
+                    type="default"
+                    className="flex-button"
+                    icon={<UploadOutlined />}
+                    iconPlacement="end"
+                    disabled={isBulkUploading}
+                  >
+                    Bulk upload
+                  </Button>
+                </Upload>
+                <Button
+                  type="primary"
+                  className="flex-button accounts-by-id__bulk-submit"
+                  onClick={handleBulkUploadSubmit}
+                  loading={isBulkUploading}
+                  disabled={bulkFileList.length === 0 || isBulkUploading}
+                >
+                  Submit
                 </Button>
-              </Upload>
+              </div>
               <Button
                 type="default"
                 className="flex-button"

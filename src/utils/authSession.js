@@ -7,6 +7,7 @@ import {
 export const API_BASE_URL = 'http://localhost:3000/api/v1/'
 export const AUTH_REDIRECT_KEY = 'authRedirect'
 export const SESSION_EXPIRED_EVENT = 'auth:session-expired'
+export const META_DATA_KEY = 'metaData'
 
 export function getAuthTokens() {
   const user = getLocalStorage('user')
@@ -25,9 +26,30 @@ export function setAuthTokens({ accessToken, refreshToken }) {
   })
 }
 
+export function getMetaData(defaultValue = null) {
+  return getLocalStorage(META_DATA_KEY, defaultValue)
+}
+
+export function persistMetaData(metaData) {
+  if (metaData == null) return false
+  return setLocalStorage(META_DATA_KEY, metaData)
+}
+
+export function persistMetaDataFromResponse(payload) {
+  if (!payload || typeof payload !== 'object' || payload instanceof Blob) {
+    return false
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(payload, 'metaData')) {
+    return false
+  }
+
+  return persistMetaData(payload.metaData)
+}
+
 export function clearAuthSession() {
   removeLocalStorage('user')
-  removeLocalStorage('userDetails')
+  removeLocalStorage(META_DATA_KEY)
 }
 
 export function getAuthRedirectPath() {
@@ -82,6 +104,7 @@ async function performTokenRefresh() {
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
       })
+      persistMetaDataFromResponse(data)
       return true
     }
 

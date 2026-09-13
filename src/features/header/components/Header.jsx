@@ -15,7 +15,7 @@ export function Header() {
   const navigate = useNavigate()
   const [signoutApi] = useSignoutMutation()
   const [isSigningOut, setIsSigningOut] = useState(false)
-  const userDetails = getLocalStorage('userDetails')
+  const userDetails = getLocalStorage('metaData')
   const displayName =
     userDetails?.name || userDetails?.username || userDetails?.email || 'User'
 

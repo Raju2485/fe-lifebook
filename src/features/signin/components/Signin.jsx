@@ -43,7 +43,6 @@ const Signin = () => {
 
       if (user) {
         setLocalStorage('user', user)
-        setLocalStorage('userDetails', res?.user_details ?? false)
         clearAuthRedirect()
         setFlashMessage({ type: 'success', content: res?.msg ?? '' })
         navigate(from, { replace: true })

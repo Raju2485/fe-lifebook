@@ -4,6 +4,7 @@ import {
   dispatchSessionExpired,
   getAuthTokens,
   isAuthEndpoint,
+  persistMetaDataFromResponse,
   refreshAccessToken,
 } from '../utils/authSession'
 
@@ -21,6 +22,10 @@ const baseQuery = fetchBaseQuery({
 
 export const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions)
+
+  if (result.data) {
+    persistMetaDataFromResponse(result.data)
+  }
 
   if (result.error?.status !== 401) {
     return result
@@ -41,6 +46,9 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
 
   if (refreshed) {
     result = await baseQuery(args, api, { ...extraOptions, _retry: true })
+    if (result.data) {
+      persistMetaDataFromResponse(result.data)
+    }
     return result
   }
 

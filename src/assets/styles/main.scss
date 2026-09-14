@@ -32,6 +32,11 @@ h2 {
 }
 
 .dashboard-cards {
+  display: flex;
+  align-items: center;
+  justify-content: center;  
+  border: 1px solid $accent;
+  border-radius: 10px;
   text-align: center;
   padding: 10px;
   height: 200px;

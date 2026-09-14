@@ -46,6 +46,7 @@ import {
   useBulkUploadMutation,
   useGetYearsAndMonthsQuery,
 } from '../services/apiSlice'
+import { useOrgsQuery } from '../../businessAndAccounts/services/apiSlice'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
 const DATE_TIME_FORMAT = 'D-MMM-YYYY HH:mm:ss'
@@ -119,7 +120,7 @@ function isAccountsNotFoundResponse(payload) {
 
 const TABLE_COLUMNS = [
   { title: 'Date', dataIndex: 'date', key: 'date' },
-  { title: 'Debitor', dataIndex: 'debitor', key: 'debitor' },
+  { title: 'Debtor', dataIndex: 'debitor', key: 'debitor' },
   { title: 'Creditor', dataIndex: 'creditor', key: 'creditor' },
   { title: 'Particulars', dataIndex: 'particulars', key: 'particulars' },
   { title: 'Amount', dataIndex: 'amount', key: 'amount', align: 'right' },
@@ -153,6 +154,13 @@ function BusinessAndAccountsById() {
     // This option forces a refetch on component mount
     { refetchOnMountOrArgChange: true, orgId: id, search: accountSearch }
   )
+  const { data: orgs } = useOrgsQuery({ refetchOnMountOrArgChange: true })
+  const currentOrg = orgs?.data?.find((org) => String(org.id) === String(id))
+  const role = currentOrg?.Accounts?.[0]?.isAdmin
+    ? 'Admin'
+    : currentOrg?.Accounts?.[0]?.isMember
+      ? 'Member'
+      : ''
 
   const [createAccount] = useCreateAccountMutation()
   const [postJournalEntry] = usePostJournalEntryMutation()
@@ -581,9 +589,14 @@ function BusinessAndAccountsById() {
     <div className="accounts-by-id">
       <Typography.Title
         level={3}
-        className="accounts-by-id__panel-title center"
+        className="accounts-by-id__org-name-card"
       >
-        {orgName}
+        <span className="accounts-by-id__org-name">
+          {orgName}
+          {role ? (
+            <span className="accounts-by-id__role">{role}</span>
+          ) : null}
+        </span>
       </Typography.Title>
       <div className="accounts-by-id__top">
         <section className="accounts-by-id__panel accounts-by-id__journal">
@@ -632,7 +645,7 @@ function BusinessAndAccountsById() {
                   <FormItem
                     label="Debtor:"
                     name="DebitorId"
-                    rules={[{ required: true, message: 'Select Debitor' }]}
+                    rules={[{ required: true, message: 'Select Debtor' }]}
                     style={{ flex: 1, marginBottom: 0 }}
                     extra={
                       <>
@@ -774,7 +787,6 @@ function BusinessAndAccountsById() {
             <br />
             <br />
           </section>
-          <br />
           <br />
           <section className="accounts-by-id__panel accounts-by-id__reports">
             <div className="flex">

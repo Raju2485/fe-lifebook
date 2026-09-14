@@ -1,6 +1,7 @@
 @use '../../../assets/styles/variables.scss' as *;
 
 .accounts-by-id {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -21,17 +22,48 @@
   padding-right: auto;
   text-align: center;
 }
+
+.accounts-by-id__org-name {
+  position: relative;
+  display: inline-block;
+  margin-right: 35px;
+}
+
+.accounts-by-id__role {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(100%, -50%);
+  margin-left: 4px;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.65);
+  white-space: nowrap;
+}
+.accounts-by-id__org-name-card {
+  border: 1px solid $accent;
+  border-radius: 10px;
+  background: #fff;
+  padding: 12px 16px;
+  margin-left: auto;
+  margin-right: auto;
+}
 .accounts-by-id__panel {
   border: 1px solid $accent;
+  border-radius: 10px;
   background: #fff;
   padding: 12px 16px;
 }
 
 .accounts-by-id__panel-title {
   margin: 0;
+  border-radius: 10px;
+  background-color: #fff;
   font-size: 16px;
   font-weight: 600;
   color: $accent;
+  padding: 10px;
 }
 
 .accounts-by-id__journal > .accounts-by-id__panel-title {

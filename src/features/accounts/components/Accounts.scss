@@ -187,16 +187,18 @@
 }
 
 .accounts-by-id__table-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
+  // display: flex;
+  // flex-wrap: wrap;
+  // gap: 12px;
+  // align-items: center;
+  width: 50%;
 }
 
-.accounts-by-id__search {
-  flex: 1;
-  min-width: 200px;
-}
+// .accounts-by-id__search {
+//   // flex: 1;
+//   min-width: 200px;
+//   width: 50%
+// }
 
 .accounts-by-id__table-footer {
   display: flex;

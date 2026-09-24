@@ -20,15 +20,8 @@ import {
   Upload,
 } from 'antd'
 
-import { getLocalStorage } from '../../../utils/localStorage'
-
 const { Item: FormItem } = Form
-import {
-  DownloadOutlined,
-  UploadOutlined,
-  SearchOutlined,
-  EditOutlined,
-} from '@ant-design/icons'
+import { SearchOutlined, EditOutlined } from '@ant-design/icons'
 
 import dayjs from 'dayjs'
 import './Accounts.scss'
@@ -36,13 +29,34 @@ import TextArea from 'antd/es/input/TextArea'
 
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
 import {
-  useAccountsQuery
-} from '../services/apiSlice';
+  useAccountsQuery,
+  useUpdateAccountMutation,
+  useRolesQuery,
+} from '../services/apiSlice'
 
+import { toTitleCase } from '../../../utils/toTitleCase.js'
+
+function Accounts() {
+  const [form] = Form.useForm()
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10);
+  const [open, setOpen] = useState(false)
+  const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
+  const [updateAccount] = useUpdateAccountMutation()
+  const { showMessage } = useShowMessage()
+  const [initialValues, setInitialValues] = useState({})
+
+  const { id } = useParams()
+  const [accountSearch, setAccountSearch] = useState()
+  const [roleSearch, setRoleSearch] = useState()
+  
 const handleEdit = (row) => {
-  console.log(row)
-}
-
+  setOpen(true)
+  form.setFieldsValue({
+    id: row?.id,
+    RolesIds: row?.Roles?.map((role) => role.id )
+    // RolesIds: row?.Roles?.map((role) => { return { value: role.id, key: role.id, label: role.name } })
+  })}
 
 const TABLE_COLUMNS = [
   {
@@ -58,15 +72,29 @@ const TABLE_COLUMNS = [
   {
     title: 'Account Type',
     key: 'accountType',
-    render: (_, row) => (row?.AccTypeMaster ? `${row.AccTypeMaster.name}` : ''),
+    render: (_, row) =>
+      row?.AccTypeMaster ? `${toTitleCase(row?.AccTypeMaster?.name)}` : '',
   },
   {
     title: 'Roles',
     key: 'roles',
-    render: (_, row) =>
-      row?.Roles?.length > 0
-        ? `${row.Roles.map((role) => role.name).join(', ')}`
-        : '',
+    render: (_, row) => {
+      return row?.Roles?.length > 0
+        ? row.Roles.map((role) => (
+            <span
+              key={role.name}
+              style={{
+                padding: '5px',
+                border: '1px solid red',
+                borderRadius: '5px',
+                marginRight: '5px',
+              }}
+            >
+              {toTitleCase(role.name)}
+            </span>
+          ))
+        : ''
+    },
   },
 
   {
@@ -79,50 +107,81 @@ const TABLE_COLUMNS = [
     ),
   },
 ]
-
-function Accounts() {
-  const [rangeStart, setRangeStart] = useState(dayjs().startOf('year'))
-  const [rangeEnd, setRangeEnd] = useState(dayjs())
-  const [searchText, setSearchText] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10);
+  const handleClose = () => {
+    form.resetFields()
+    setOpen(false)
+  }
   
+  const handleSearch = (value) => {
+    setRoleSearch(value)
+  }
+  
+  const onFinishModal = async () => {
+    try {
+      setIsModalSubmitDisabled(true)
+      const values = await form.validateFields()
+      console.log('values = ', values)
+
+      const response = await updateAccount({
+        account: { ...values },
+        orgId: id,
+      })
+
+      if (response?.data?.success === true) {
+        form.resetFields()
+        setOpen(false)
+        showMessage({
+          type: 'success',
+          content: response?.data?.msg ?? 'Account updated successfully!',
+        })
+      } else {
+        showMessage({
+          type: 'error',
+          content: response?.error?.data?.message ?? 'Failed to update account',
+        })
+      }
+    } catch (info) {
+      console.log('Validate Failed:', info)
+    } finally {
+      setIsModalSubmitDisabled(false)
+    }
+  }
 
 
-  const { id } = useParams()
-  const [accountSearch, setAccountSearch] = useState()
+  const { data: roles } = useRolesQuery({
+    refetchOnMountOrArgChange: true,
+    search: roleSearch,
+  })
 
   const { data: accounts } = useAccountsQuery(
     // { count: 5 },
     // This option forces a refetch on component mount
-    { refetchOnMountOrArgChange: true, orgId: id, search: accountSearch }
+    {
+      refetchOnMountOrArgChange: true,
+      orgId: id,
+      search: accountSearch,
+      page: currentPage,
+      perPage: pageSize,
+    }
   )
-const PAGE_SIZE_OPTIONS = [
-  { value: 10, label: '10' },
-  { value: 20, label: '20' },
-  { value: 50, label: '50' },
-]
-    const journalTotal = Number(accounts?.pagination?.totalRecords) || 0
-    const journalPage = Number(accounts?.pagination?.currentPage) || currentPage
-    const journalPageSize = Number(accounts?.pagination?.totalPerPage) || pageSize
-
-  
-const DATE_FORMAT = 'D-MMM-YYYY'
-
+  const PAGE_SIZE_OPTIONS = [
+    { value: 10, label: '10' },
+    { value: 20, label: '20' },
+    { value: 50, label: '50' },
+  ]
+  const journalTotal = Number(accounts?.pagination?.totalRecords) || 0
 
   return (
     <div className="accounts-by-id">
-
       <section className="accounts-by-id__panel accounts-by-id__table-panel">
         <div className="accounts-by-id__table-controls">
-
           <Input
             className="accounts-by-id__search"
             placeholder="Search"
             prefix={<SearchOutlined />}
-            value={searchText}
+            value={accountSearch}
             onChange={(event) => {
-              setSearchText(event.target.value)
+              setAccountSearch(event.target.value)
               setCurrentPage(1)
             }}
             allowClear
@@ -141,8 +200,8 @@ const DATE_FORMAT = 'D-MMM-YYYY'
         <div className="accounts-by-id__table-footer">
           <div className="accounts-by-id__pagination">
             <Pagination
-              current={journalPage}
-              pageSize={journalPageSize}
+              current={currentPage}
+              pageSize={pageSize}
               total={journalTotal}
               showSizeChanger={false}
               showQuickJumper={false}
@@ -163,6 +222,79 @@ const DATE_FORMAT = 'D-MMM-YYYY'
           </div>
         </div>
       </section>
+
+      <Modal
+        title=""
+        open={open}
+        width="50%"
+        footer={null}
+        // className={styles.customModal}
+        closable={true}
+        onCancel={handleClose}
+      >
+        <div
+        // className={`${styles.table_row}`}
+        >
+          <Form
+            form={form}
+            initialValues={initialValues}
+            layout="vertical"
+            onFinish={onFinishModal}
+          >
+            <AntCard
+              title={'Update Account'}
+              // className={styles.CustomPanel}
+            >
+              <Row gutter={24}>
+                <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                  <Form.Item name="id" hidden>
+                    <Input type="hidden" />
+                  </Form.Item>
+                  <FormItem label="Roles:" name="RolesIds">
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      placeholder="Select Role(s)"
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={false}
+                      onSearch={handleSearch}
+                      disabled={isModalSubmitDisabled}
+                      options={(roles?.data ?? []).map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                      }))}
+                    />
+                  </FormItem>
+                </Col>
+              </Row>
+            </AntCard>
+
+            <FormItem className="text-center">
+              <Space>
+                <Button
+                  // className={styles.inwardButton}
+                  htmlType="submit"
+                  type="primary"
+                  size="medium"
+                  disabled={isModalSubmitDisabled}
+                >
+                  Submit
+                </Button>
+                <Button
+                  // className={styles.inwardButton}
+                  onClick={handleClose}
+                  type="primary"
+                  ghost
+                  size="medium"
+                >
+                  Close
+                </Button>
+              </Space>
+            </FormItem>
+          </Form>
+        </div>
+      </Modal>
     </div>
   )
 }

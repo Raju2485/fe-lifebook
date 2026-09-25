@@ -170,18 +170,22 @@ function BusinessAndAccountsById() {
     id: id,
   })
   const currentOrg = orgs?.data
-  const role = currentOrg?.Accounts?.[0]?.isAdmin
-    ? 'Admin'
-    : currentOrg?.Accounts?.[0]?.isMember
-      ? 'Member'
-      : ''
 
   const currentOrgRoles =
     currentOrg?.Accounts?.[0]?.Roles?.map((role) =>
       role?.name?.toLowerCase()
     ) ?? []
-  console.log('currentOrgRoles', currentOrgRoles.includes('book keeper'))
 
+  const isAdmin = currentOrg?.Accounts?.[0]?.isAdmin ? true : false
+
+  if (isAdmin) {
+    currentOrgRoles.push('admin')
+    currentOrgRoles.push('member')
+  } else {
+    currentOrgRoles.push('member')
+  }
+
+  
   const [createAccount] = useCreateAccountMutation()
   const [postJournalEntry] = usePostJournalEntryMutation()
   const [bulkUpload, { isLoading: isBulkUploading }] = useBulkUploadMutation()
@@ -610,12 +614,12 @@ function BusinessAndAccountsById() {
       <Typography.Title level={3} className="accounts-by-id__org-name-card">
         <span className="accounts-by-id__org-name">
           {orgName}
-          {role ? <span className="accounts-by-id__role">{role}</span> : null}
+          {isAdmin && <span className="accounts-by-id__role">Admin</span> }
         </span>
       </Typography.Title>
 
-      {role.toLowerCase() === 'admin' && <Accounts />}
-      {role.toLowerCase() == 'book keeper' && (
+      {isAdmin && <Accounts />}
+      {['book keeper'].some(role => currentOrgRoles.includes(role)) && (
         <>
           <div className="accounts-by-id__top">
             <section className="accounts-by-id__panel accounts-by-id__journal">

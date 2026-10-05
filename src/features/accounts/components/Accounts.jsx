@@ -44,8 +44,6 @@ function Accounts() {
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
   const [updateAccount] = useUpdateAccountMutation()
   const { showMessage } = useShowMessage()
-  const [initialValues, setInitialValues] = useState({})
-
   const { id } = useParams()
   const [accountSearch, setAccountSearch] = useState()
   const [roleSearch, setRoleSearch] = useState()
@@ -54,9 +52,9 @@ const handleEdit = (row) => {
   setOpen(true)
   form.setFieldsValue({
     id: row?.id,
-    RolesIds: row?.Roles?.map((role) => role.id )
-    // RolesIds: row?.Roles?.map((role) => { return { value: role.id, key: role.id, label: role.name } })
-  })}
+    RolesIds: row?.Roles?.map((role) => role.id) ?? [],
+  })
+}
 
 const TABLE_COLUMNS = [
   {
@@ -237,7 +235,6 @@ const TABLE_COLUMNS = [
         >
           <Form
             form={form}
-            initialValues={initialValues}
             layout="vertical"
             onFinish={onFinishModal}
           >

@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from 'react'
-import { useParams } from 'react-router'
+import { useParams, useNavigate } from 'react-router'
+import { Link } from 'react-router-dom'
 import {
   Button,
   DatePicker,
@@ -127,6 +128,12 @@ const TABLE_COLUMNS = [
   { title: 'Creditor', dataIndex: 'creditor', key: 'creditor' },
   { title: 'Particulars', dataIndex: 'particulars', key: 'particulars' },
   { title: 'Amount', dataIndex: 'amount', key: 'amount', align: 'right' },
+  {
+    title: 'Is Adjustment?',
+    dataIndex: 'isAdjustment',
+    key: 'isAdjustment',
+    render: (text) => text ? 'Yes' : '',
+  },
 ]
 
 function BusinessAndAccountsById() {
@@ -251,6 +258,8 @@ function BusinessAndAccountsById() {
       (firstType === 'nominal' && secondType === 'nominal')
     )
   }
+
+  const navigate = useNavigate()
 
   const handleDebitorChange = (value) => {
     if (isRestrictedPair(value, form.getFieldValue('CreditorId'))) {
@@ -614,12 +623,12 @@ function BusinessAndAccountsById() {
       <Typography.Title level={3} className="accounts-by-id__org-name-card">
         <span className="accounts-by-id__org-name">
           {orgName}
-          {isAdmin && <span className="accounts-by-id__role">Admin</span> }
+          {isAdmin && <span className="accounts-by-id__role">Admin</span>}
         </span>
       </Typography.Title>
 
       {isAdmin && <Accounts />}
-      {['book keeper'].some(role => currentOrgRoles.includes(role)) && (
+      {['book keeper'].some((role) => currentOrgRoles.includes(role)) && (
         <>
           <div className="accounts-by-id__top">
             <section className="accounts-by-id__panel accounts-by-id__journal">
@@ -800,7 +809,10 @@ function BusinessAndAccountsById() {
                         key={month}
                         type={selectedMonth === month ? 'primary' : 'default'}
                         className="accounts-by-id__month-btn"
-                        onClick={() => setSelectedMonth(month)}
+                        onClick={() => {
+                          setSelectedMonth(month) 
+                          navigate(`/reports?orgId=${id}&year=${reportYear}&month=${month}`)
+                        }}
                       >
                         {month}
                       </Button>
@@ -1303,6 +1315,24 @@ function BusinessAndAccountsById() {
                         </FormItem>
                       </Col>
                     )}
+
+                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                      <FormItem
+                        label="Is Adjustment Account?"
+                        name="isAdjustAcc"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Select Yes / No',
+                          },
+                        ]}
+                      >
+                        <Radio.Group>
+                          <Radio value={true}>Yes</Radio>
+                          <Radio value={false}>No</Radio>
+                        </Radio.Group>
+                      </FormItem>
+                    </Col>
                   </Row>
                 </AntCard>
 

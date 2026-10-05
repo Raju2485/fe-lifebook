@@ -11,7 +11,9 @@ import { UnderConstruction } from './pages/UnderConstruction.jsx'
 import { BusinessAndAccounts } from './pages/BusinessAndAccounts.jsx'
 import { BusinessAndAccountsById } from './pages/BusinessAndAccountsById.jsx'
 import { Practice } from './pages/Practice.jsx';
-import { ResetPassword } from './pages/ResetPassword.jsx';
+import { ResetPassword } from './pages/ResetPassword.jsx'
+import { ReportsPage } from './pages/Reports.jsx'
+import { BeforeAdjustments } from './pages/BeforeAdjustments.jsx'
 
 function App() {
   // const user = getLocalStorage('user')
@@ -52,6 +54,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <BusinessAndAccounts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <ReportsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accounts-before-adjustments"
+            element={
+              <ProtectedRoute>
+                <BeforeAdjustments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accounts-after-adjustments"
+            element={
+              <ProtectedRoute>
+                <UnderConstruction />
               </ProtectedRoute>
             }
           />

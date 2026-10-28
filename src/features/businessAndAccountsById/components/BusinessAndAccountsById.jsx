@@ -145,7 +145,7 @@ function BusinessAndAccountsById() {
   //     ? 'Member'
   //     : ''
 
-  const [reportYear, setReportYear] = useState()
+  const [reportYear, setReportYear] = useState({})
   const [months, setMonths] = useState([])
   const [selectedMonth, setSelectedMonth] = useState(null)
   const [rangeStart, setRangeStart] = useState(dayjs().startOf('year'))
@@ -220,15 +220,21 @@ function BusinessAndAccountsById() {
     type: 'financial-reports',
   })
   useEffect(() => {
-    setReportYear(yearsAndMonths?.data?.[0]?.year ?? null)
+    const years = yearsAndMonths?.data ?? []
+    if (years.length === 0) {
+      setReportYear(null)
+      return
+    }
+    const stillSelected = years.find((item) => item.id === reportYear?.id)
+    setReportYear(stillSelected ?? years[0])
   }, [yearsAndMonths])
 
   useEffect(() => {
     setMonths(
-      yearsAndMonths?.data?.find((item) => item.year === reportYear)?.months ??
-        null
+      yearsAndMonths?.data?.find((item) => item.id === reportYear?.id)?.months ??
+        []
     )
-  }, [reportYear, yearsAndMonths?.data])
+  }, [reportYear, yearsAndMonths])
 
   const isMember = Form.useWatch('isMember', form2)
   const isUserExisting = Form.useWatch('isUserExisting', form2)
@@ -750,6 +756,23 @@ function BusinessAndAccountsById() {
                         />
                       </FormItem>
                     </Col>
+                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
+                      <FormItem
+                        label="Is Adjustment?"
+                        name="isAdjustment"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Select Yes / No',
+                          },
+                        ]}
+                      >
+                        <Radio.Group>
+                          <Radio value={true}>Yes</Radio>
+                          <Radio value={false}>No</Radio>
+                        </Radio.Group>
+                      </FormItem>
+                    </Col>
                   </Row>
                   <Row gutter={24}>
                     <Col xs={24} xl={24} span={24} md={24} sm={24}>
@@ -792,12 +815,18 @@ function BusinessAndAccountsById() {
                     Financial Reports:
                   </Typography.Title>
                   <Select
-                    value={reportYear}
+                    value={reportYear?.id}
                     options={yearsAndMonths?.data?.map((item) => ({
-                      value: item.year,
+                      value: item.id,
                       label: item.year,
                     }))}
-                    onChange={(value) => setReportYear(value)}
+                    onChange={(yearId) => {
+                      const selected = yearsAndMonths?.data?.find(
+                        (item) => item.id === yearId
+                      )
+                      setReportYear(selected ?? null)
+                      setSelectedMonth(null)
+                    }}
                     style={{ width: 88 }}
                   />
                 </div>
@@ -806,20 +835,20 @@ function BusinessAndAccountsById() {
                   {months?.length > 0 ? (
                     months.map((month) => (
                       <Button
-                        key={month}
-                        type={selectedMonth === month ? 'primary' : 'default'}
+                        key={month.id}
+                        type={selectedMonth === month.monthName ? 'primary' : 'default'}
                         className="accounts-by-id__month-btn"
                         onClick={() => {
-                          setSelectedMonth(month) 
-                          navigate(`/reports?orgId=${id}&year=${reportYear}&month=${month}`)
+                          setSelectedMonth(month.monthName) 
+                          navigate(`/reports?orgId=${id}&yearId=${reportYear.id}&monthId=${month.id}`)
                         }}
                       >
-                        {month}
+                        {month.monthName}
                       </Button>
                     ))
                   ) : (
                     <Typography.Text>
-                      No months found for this year {reportYear}
+                      No months found
                     </Typography.Text>
                   )}
                 </div>

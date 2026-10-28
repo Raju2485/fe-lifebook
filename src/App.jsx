@@ -13,7 +13,6 @@ import { BusinessAndAccountsById } from './pages/BusinessAndAccountsById.jsx'
 import { Practice } from './pages/Practice.jsx';
 import { ResetPassword } from './pages/ResetPassword.jsx'
 import { ReportsPage } from './pages/Reports.jsx'
-import { BeforeAdjustments } from './pages/BeforeAdjustments.jsx'
 
 function App() {
   // const user = getLocalStorage('user')
@@ -65,22 +64,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/accounts-before-adjustments"
-            element={
-              <ProtectedRoute>
-                <BeforeAdjustments />
-              </ProtectedRoute>
-            }
-          />
-          <Route
+          {/* <Route
             path="/accounts-after-adjustments"
             element={
               <ProtectedRoute>
                 <UnderConstruction />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route path="/dairy" element={<UnderConstruction />} />
           <Route path="/relatives" element={<UnderConstruction />} />
           <Route path="/tasks" element={<UnderConstruction />} />

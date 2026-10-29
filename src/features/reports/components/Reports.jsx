@@ -37,10 +37,11 @@ import { BalanceSheet } from './BalanceSheet'
 import { PDF } from './Pdf'
 import {
   useFinalAccountsQuery,
-  useGenerateAccountsQuery,
+  useLazyGenerateAccountsQuery,
 } from '../services/apiSlice'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
+import { useShowMessage } from '../../../hooks/useShowMessage.js'
 
 const keysAndLabels = [
   {
@@ -75,20 +76,50 @@ const siderWidth = '100px'
 
 export function Reports() {
   const [activeKey, setActiveKey] = useState('main1')
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { showMessage } = useShowMessage()
+  const [searchParams] = useSearchParams()
   const orgId = searchParams.get('orgId')
   const yearId = searchParams.get('yearId')
   const monthId = searchParams.get('monthId')
+  const hasReportParams = Boolean(orgId && yearId && monthId)
 
-  console.log('orgId, year, month', orgId)
+  const { isLoading } = useFinalAccountsQuery(
+    { orgId, yearId, monthId },
+    { refetchOnMountOrArgChange: true, skip: !hasReportParams }
+  )
 
-    const { data, isLoading, isError } = useFinalAccountsQuery({
-      orgId: orgId,
-      yearId: yearId,
-      monthId: monthId,
-      refetchOnMountOrArgChange: true,
-    })
+  const [
+    generateAccounts,
+    { isFetching: generateAccountsLoading },
+  ] = useLazyGenerateAccountsQuery()
 
+  const handleGenerateReports = async () => {
+    if (!hasReportParams) {
+      showMessage({ type: 'error', content: 'Missing report filters' })
+      return
+    }
+
+    try {
+      const res = await generateAccounts({
+        orgId,
+        yearId,
+        monthId,
+      }).unwrap()
+
+      showMessage({
+        type: 'success',
+        content: res?.msg ?? res?.message ?? 'Reports generated successfully',
+      })
+    } catch (err) {
+      showMessage({
+        type: 'error',
+        content:
+          err?.data?.msg ??
+          err?.data?.message ??
+          'Failed to generate reports',
+      })
+    }
+  }
 
   const handleClick = ({ key }) => {
     console.log('activeKey = ', key)
@@ -128,17 +159,16 @@ export function Reports() {
     },
   ]
 
-  console.log('data = ', data)
-
-  const handleReload = () => {
-    console.log('Reloading reports')
-  }
-  const [loading, setLoading] = useState(false)
-
   const [size, setSize] = useState('medium')
+  const showLoadingMask = isLoading || generateAccountsLoading
 
   return (
     <>
+      {showLoadingMask ? (
+        <div className="reports-loading-mask">
+          <Spin size="large" />
+        </div>
+      ) : null}
       <Flex gap="small" align="flex-start" justify="space-between" horizontal>
         <Segmented
           size={size}
@@ -149,7 +179,14 @@ export function Reports() {
           ]}
         />{' '}
         <Divider vertical />
-        <Button size={'large'} shape="round" icon={<ReloadOutlined />}></Button>
+        <Button
+          size="large"
+          shape="round"
+          icon={<ReloadOutlined />}
+          onClick={handleGenerateReports}
+          loading={generateAccountsLoading}
+          disabled={!hasReportParams || generateAccountsLoading}
+        />
       </Flex>
       <br />
       <Flex gap="small" align="flex-start" horizontal>

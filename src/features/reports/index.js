@@ -1,2 +1,1 @@
-export { Reports } from './components/Reports copy'
-
+export { Reports } from './components/Reports'

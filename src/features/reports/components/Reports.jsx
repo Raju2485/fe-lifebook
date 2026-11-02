@@ -30,7 +30,7 @@ import {
 } from '@ant-design/icons'
 import './Reports.scss'
 import { JournalEntries } from './Journals'
-import { Ledgers } from './Ledgers'
+import { Ledger } from './Ledger.jsx'
 import { TrialBalance } from './TrialBalance'
 import { ProfitAndLoss } from './ProfitAndLoss'
 import { BalanceSheet } from './BalanceSheet'
@@ -38,41 +38,11 @@ import { PDF } from './Pdf'
 import {
   useFinalAccountsQuery,
   useLazyGenerateAccountsQuery,
+  useGetKeysAndLabelsQuery,
 } from '../services/apiSlice'
 
 import { useState } from 'react'
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
-
-const keysAndLabels = [
-  {
-    label: 'Journal Entries',
-    key: 1,
-    // children: <JournalEntries />,
-  },
-  {
-    label: 'Ledgers',
-    key: 2,
-    // children: <Ledgers />,
-  },
-  {
-    label: 'Trial Balance(Unadjusted)',
-    key: 3,
-  },
-  {
-    label: 'Trial Balance(Adjusted)',
-    key: 30,
-  },
-  {
-    label: 'Profit and Loss',
-    key: 4,
-  },
-  {
-    label: 'Balance Sheet',
-    key: 5,
-  },
-]
-
-const siderWidth = '100px'
 
 export function Reports() {
   const [activeKey, setActiveKey] = useState('main1')
@@ -83,16 +53,21 @@ export function Reports() {
   const monthId = searchParams.get('monthId')
   const hasReportParams = Boolean(orgId && yearId && monthId)
 
-  const { isLoading } = useFinalAccountsQuery(
+  const { isLoading, data: finalAccountsData } = useFinalAccountsQuery(
     { orgId, yearId, monthId },
     { refetchOnMountOrArgChange: true, skip: !hasReportParams }
   )
 
+  console.log('finalAccountsData = ', finalAccountsData?.data?.jsonData)
   const [
     generateAccounts,
     { isFetching: generateAccountsLoading },
   ] = useLazyGenerateAccountsQuery()
 
+const { data: keysAndLabelsData } = useGetKeysAndLabelsQuery({
+  apiEndpoint: '/api/v1/get-accounting-reports',
+})
+  
   const handleGenerateReports = async () => {
     if (!hasReportParams) {
       showMessage({ type: 'error', content: 'Missing report filters' })
@@ -104,7 +79,7 @@ export function Reports() {
         orgId,
         yearId,
         monthId,
-      }).unwrap()
+      }).unwrap();
 
       showMessage({
         type: 'success',
@@ -127,38 +102,56 @@ export function Reports() {
   }
 
   const allContents = {
-    main1: <div>Content of Tab 1</div>,
-    main2: <div>Select a nested tab from dropdown</div>,
+    journals: <div>Content of Journals</div>,
+    ledgers1: <div>Select a nested tab from dropdown</div>,
     sub1: <div>Content of Nested Tab 1</div>,
     sub2: <div>Content of Nested Tab 2</div>,
     main3: <div>Content of Tab 3</div>,
   }
 
-  const visibleItems = [
+  const visibleItems = [    
     {
-      key: 'main1',
-      label: 'Main Tab 1',
-    },
-    {
-      key: 'main2',
-      label: 'Main Tab 2',
-      children: [
-        {
-          key: 'sub1',
-          label: 'Sub item 1',
-        },
-        {
-          key: 'sub2',
-          label: 'Sub item 2',
-        },
-      ],
-    },
-    {
-      key: 'main3',
-      label: 'Main Tab 3',
+      key: 'journals',
+      label: keysAndLabelsData?.data?.journals,
     },
   ]
 
+  allContents.journals = <JournalEntries journals={finalAccountsData?.data?.jsonData?.journals} />
+
+  const ledgers = {
+    key: 'ledgers',
+    label: keysAndLabelsData?.data?.ledgers,
+    children: []
+  }
+
+  finalAccountsData?.data?.jsonData?.ledgers.length > 0 && finalAccountsData?.data?.jsonData?.ledgers.forEach(item => {
+    ledgers.children.push({
+      key: item.name,
+      label: item.name,
+    })
+    allContents[item.name] = <Ledger ledger={ item } />
+  })
+  visibleItems.push(ledgers);
+
+  visibleItems.push({
+    key: 'trialBalanceUnadjusted',
+    label: keysAndLabelsData?.data?.trialBalanceUnadjusted,
+  })
+
+  visibleItems.push({
+    key: 'trialBalanceAdjusted',
+    label: keysAndLabelsData?.data?.trialBalanceAdjusted,
+  })
+
+  visibleItems.push({
+    key: 'pAndLAccount',
+    label: keysAndLabelsData?.data?.pAndLAccount,
+  })
+
+  visibleItems.push({
+    key: 'profitAndLoss',
+    label: keysAndLabelsData?.data?.profitAndLoss,
+  })
   const [size, setSize] = useState('medium')
   const showLoadingMask = isLoading || generateAccountsLoading
 
@@ -174,8 +167,8 @@ export function Reports() {
           size={size}
           shape="round"
           options={[
-            { value: 'light', label: 'Text', icon: <FileTextOutlined /> },
-            { value: 'dark', label: 'PDF', icon: <FilePdfOutlined /> },
+            { value: 'text', label: 'Text', icon: <FileTextOutlined /> },
+            { value: 'pdf', label: 'PDF', icon: <FilePdfOutlined /> },
           ]}
         />{' '}
         <Divider vertical />
@@ -195,7 +188,7 @@ export function Reports() {
           onClick={handleClick}
           style={{ height: '400px', overflowY: 'auto' }}
         />
-        <div style={{ marginTop: 16 }}>{allContents[activeKey]}</div>{' '}
+        <div style={{ marginTop: 16, textAlign: 'center', width: '100%' }}>{allContents[activeKey]}</div>{' '}
       </Flex>
     </>
   )

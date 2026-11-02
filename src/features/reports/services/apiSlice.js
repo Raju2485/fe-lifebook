@@ -28,3 +28,4 @@ const getCards = api.injectEndpoints({
   }),
 })
 export const { useCardsQuery, useFinalAccountsQuery, useLazyGenerateAccountsQuery } = getCards
+export const { useGetKeysAndLabelsQuery } = api;

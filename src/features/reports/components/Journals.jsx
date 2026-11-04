@@ -1,7 +1,7 @@
 import { Table } from 'antd'
 
 export function JournalEntries({ journals }) {
-  console.log('Journals = ', journals.entries)
+  const entries = Array.isArray(journals?.entries) ? journals.entries : []
   const columns = [
     {
       title: 'Date',
@@ -11,6 +11,7 @@ export function JournalEntries({ journals }) {
         return (
           <>
             <div>{row.date}</div>
+            <div>&nbsp;</div>
             <div>&nbsp;</div>
           </>
         )
@@ -23,14 +24,15 @@ export function JournalEntries({ journals }) {
       render: (_, row) => {
         return (
           <>
-            <div style={{ textAlign: 'left' }}>{row.debtor}</div>
-            <div style={{ textAlign: 'right' }}>{row.creditor}</div>
+            <div style={{ textAlign: 'left', marginRight: '20px' }}>{`${row.debtor} A/c Dr.`}</div>
+            <div style={{ textAlign: 'right', marginLeft: '20px' }}>{`To ${row.creditor} A/c`}</div>
+            <div style={{ textAlign: 'center' }}>{`(${row.particulars})`}</div>
           </>
         )
       },
     },
     {
-      title: 'Debit amount',
+      title: 'Debit',
       dataIndex: 'amount',
       key: 'amount',
       render: (_, row) => {
@@ -38,12 +40,13 @@ export function JournalEntries({ journals }) {
           <>
             <div style={{ textAlign: 'right' }}>{row.amount}</div>
             <div style={{ textAlign: 'right' }}>&nbsp;</div>
+            <div>&nbsp;</div>
           </>
         )
       },
     },
     {
-      title: 'Credit amount',
+      title: 'Credit',
       dataIndex: 'amount',
       key: 'amount',
       render: (_, row) => {
@@ -51,6 +54,7 @@ export function JournalEntries({ journals }) {
           <>
             <div style={{ textAlign: 'left' }}>&nbsp;</div>
             <div style={{ textAlign: 'right' }}>{row.amount}</div>
+            <div>&nbsp;</div>
           </>
         )
       },
@@ -64,6 +68,7 @@ export function JournalEntries({ journals }) {
           <>
             <div>{row.isAdjustment ? 'Adjustment' : ''}</div>
             <div>&nbsp;</div>
+            <div>&nbsp;</div>
           </>
         )
       },
@@ -71,9 +76,15 @@ export function JournalEntries({ journals }) {
   ]
 
   return (
-    <div>
+    <div className="reports-ledger">
       <h3>{journals?.heading}</h3>
-      <Table bordered columns={columns} dataSource={journals.entries} />
+      <Table
+        bordered
+        rowKey={(row, index) => row.id ?? `${row.date}-${index}`}
+        columns={columns}
+        dataSource={entries}
+        // pagination={false}
+      />
     </div>
   )
 }

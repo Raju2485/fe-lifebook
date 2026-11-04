@@ -31,7 +31,8 @@ import {
 import './Reports.scss'
 import { JournalEntries } from './Journals'
 import { Ledger } from './Ledger.jsx'
-import { TrialBalance } from './TrialBalance'
+import { TrialBalanceAdj } from './TrialBalanceAdj.jsx'
+import { TrialBalanceUnAdj } from './TrialBalanceUnAdj.jsx'
 import { ProfitAndLoss } from './ProfitAndLoss'
 import { BalanceSheet } from './BalanceSheet'
 import { PDF } from './Pdf'
@@ -101,13 +102,7 @@ const { data: keysAndLabelsData } = useGetKeysAndLabelsQuery({
     setActiveKey(key) // switch to the nested tab
   }
 
-  const allContents = {
-    journals: <div>Content of Journals</div>,
-    ledgers1: <div>Select a nested tab from dropdown</div>,
-    sub1: <div>Content of Nested Tab 1</div>,
-    sub2: <div>Content of Nested Tab 2</div>,
-    main3: <div>Content of Tab 3</div>,
-  }
+  const allContents = {}
 
   const visibleItems = [    
     {
@@ -137,21 +132,43 @@ const { data: keysAndLabelsData } = useGetKeysAndLabelsQuery({
     key: 'trialBalanceUnadjusted',
     label: keysAndLabelsData?.data?.trialBalanceUnadjusted,
   })
+  allContents['trialBalanceUnadjusted'] = <TrialBalanceUnAdj trialBalance={finalAccountsData?.data?.jsonData?.trialBalanceUnadjusted} />
 
   visibleItems.push({
     key: 'trialBalanceAdjusted',
     label: keysAndLabelsData?.data?.trialBalanceAdjusted,
   })
+  allContents['trialBalanceAdjusted'] = <TrialBalanceAdj trialBalance={finalAccountsData?.data?.jsonData?.trialBalanceAdjusted} />
 
+  visibleItems.push({
+    key: 'tradingAccount',
+    label: keysAndLabelsData?.data?.tradingAccount,
+  })
+  allContents['tradingAccount'] = (
+    <ProfitAndLoss
+      profitAndLoss={finalAccountsData?.data?.jsonData?.tradingAccount}
+    />
+  )
   visibleItems.push({
     key: 'pAndLAccount',
     label: keysAndLabelsData?.data?.pAndLAccount,
   })
-
+  allContents['pAndLAccount'] = (
+    <ProfitAndLoss
+      profitAndLoss={finalAccountsData?.data?.jsonData?.pAndLAccount}
+    />
+  )
+  
   visibleItems.push({
-    key: 'profitAndLoss',
-    label: keysAndLabelsData?.data?.profitAndLoss,
+    key: 'balanceSheet',
+    label: keysAndLabelsData?.data?.balanceSheet,
   })
+  allContents['balanceSheet'] = (
+    <ProfitAndLoss
+      profitAndLoss={finalAccountsData?.data?.jsonData?.balanceSheet}
+    />
+  )
+
   const [size, setSize] = useState('medium')
   const showLoadingMask = isLoading || generateAccountsLoading
 
@@ -184,9 +201,11 @@ const { data: keysAndLabelsData } = useGetKeysAndLabelsQuery({
       <br />
       <Flex gap="small" align="flex-start" horizontal>
         <Menu
+          mode="vertical"
           items={visibleItems}
           onClick={handleClick}
-          style={{ height: '400px', overflowY: 'auto' }}
+          className="reports-side-menu"
+          popupClassName="reports-submenu-popup"
         />
         <div style={{ marginTop: 16, textAlign: 'center', width: '100%' }}>{allContents[activeKey]}</div>{' '}
       </Flex>

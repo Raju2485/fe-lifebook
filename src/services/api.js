@@ -65,6 +65,7 @@ export const api = createApi({
     'Organizations',
     'Journals',
     'YearsAndMonths',
+    'AccountingReports',
   ],
   endpoints: (build) => ({
     accTypes: build.query({

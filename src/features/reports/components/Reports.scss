@@ -7,3 +7,32 @@
   justify-content: center;
   background: rgba(0, 0, 0, 0.2);
 }
+
+.reports-side-menu {
+  flex: 0 0 auto;
+  height: auto;
+  overflow: visible;
+}
+
+.reports-submenu-popup {
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.reports-submenu-popup .ant-menu {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reports-ledger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.reports-ledger h3 {
+  text-align: center;
+  width: 100%;
+}

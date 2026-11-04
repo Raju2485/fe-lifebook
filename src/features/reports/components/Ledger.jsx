@@ -11,27 +11,41 @@ export function Ledger({ ledger }) {
       title: 'Particulars',
       dataIndex: 'accountName',
       key: 'accountName',
+      render: (_, record) => {
+        return (
+          <div
+            style={{ textAlign: 'left' }}
+          >{`${record.creditAmount > 0 ? 'By' : 'To'} ${record.accountName}`}</div>
+        )
+      },
     },
     {
-      title: 'Credit amount',
-      dataIndex: 'creditAmount',
-      key: 'creditAmount',
-    },
-    {
-      title: 'Debit amount',
+      title: 'Debit',
       dataIndex: 'debitAmount',
       key: 'debitAmount',
     },
     {
-      title: 'Balance',
-      dataIndex: 'balance',
-      key: 'balance',
+      title: 'Credit',
+      dataIndex: 'creditAmount',
+      key: 'creditAmount',
     },
+    // {
+    //   title: 'Balance',
+    //   dataIndex: 'balance',
+    //   key: 'balance',
+    // },
   ]
   return (
-    <div>
+    <div
+      className="reports-ledger"
+    >
       <h3>{ledger?.heading}</h3>
-      <Table bordered columns={columns} dataSource={ledger.entries} />
+      <Table
+        bordered
+        rowKey={(row, index) => row.id ?? `${row.date}-${index}`}
+        columns={columns}
+        dataSource={Array.isArray(ledger?.entries) ? ledger.entries : []}
+      />
     </div>
   )
    

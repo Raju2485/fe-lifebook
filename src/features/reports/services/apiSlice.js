@@ -15,7 +15,7 @@ const getCards = api.injectEndpoints({
         method: 'GET',
         params: name,
       }),
-      providesTags: ['accountingReports'],
+      providesTags: ['AccountingReports'],
     }),
     generateAccounts: build.query({
       query: (name) => ({
@@ -23,7 +23,7 @@ const getCards = api.injectEndpoints({
         method: 'GET',
         params: name,
       }),
-      invalidatesTags: ['accountingReports'],
+      invalidatesTags: ['AccountingReports'],
     }),
   }),
 })

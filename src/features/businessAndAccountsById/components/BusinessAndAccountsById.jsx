@@ -84,7 +84,7 @@ const SAMPLE_TRANSACTIONS = [
   {
     key: '1',
     date: '1-Jan-2026',
-    debitor: 'Account 1',
+    debtor: 'Account 1',
     creditor: 'Account 2',
     particulars: 'Bought furniture',
     amount: '30000',
@@ -124,7 +124,7 @@ function isAccountsNotFoundResponse(payload) {
 
 const TABLE_COLUMNS = [
   { title: 'Date', dataIndex: 'date', key: 'date' },
-  { title: 'Debtor', dataIndex: 'debitor', key: 'debitor' },
+  { title: 'Debtor', dataIndex: 'debtor', key: 'debtor' },
   { title: 'Creditor', dataIndex: 'creditor', key: 'creditor' },
   { title: 'Particulars', dataIndex: 'particulars', key: 'particulars' },
   { title: 'Amount', dataIndex: 'amount', key: 'amount', align: 'right' },
@@ -240,14 +240,14 @@ function BusinessAndAccountsById() {
   const isUserExisting = Form.useWatch('isUserExisting', form2)
   const isPerson = Form.useWatch('isPerson', form2)
   const accTypeId = Form.useWatch('AccTypeId', form2)
-  const debitAccount = Form.useWatch('DebitorId', form)
+  const debitAccount = Form.useWatch('DebtorId', form)
   const creditAccount = Form.useWatch('CreditorId', form)
 
-  const selectedDebitor = accounts?.data?.find((obj) => obj.id == debitAccount)
+  const selectedDebtor = accounts?.data?.find((obj) => obj.id == debitAccount)
   const selectedCreditor = accounts?.data?.find(
     (obj) => obj.id == creditAccount
   )
-  const lastDebitorRef = useRef()
+  const lastDebtorRef = useRef()
   const lastCreditorRef = useRef()
 
   const getAccountTypeName = (accountId) => {
@@ -267,19 +267,19 @@ function BusinessAndAccountsById() {
 
   const navigate = useNavigate()
 
-  const handleDebitorChange = (value) => {
+  const handleDebtorChange = (value) => {
     if (isRestrictedPair(value, form.getFieldValue('CreditorId'))) {
       Modal.warning({
         title: "Debtor and Creditor can't be real accounts / nominal accounts",
       })
-      form.setFieldValue('DebitorId', lastDebitorRef.current)
+      form.setFieldValue('DebtorId', lastDebtorRef.current)
       return
     }
-    lastDebitorRef.current = value
+    lastDebtorRef.current = value
   }
 
   const handleCreditorChange = (value) => {
-    if (isRestrictedPair(form.getFieldValue('DebitorId'), value)) {
+    if (isRestrictedPair(form.getFieldValue('DebtorId'), value)) {
       Modal.warning({
         title: "Debtor and Creditor can't be real accounts / nominal accounts",
       })
@@ -310,7 +310,7 @@ function BusinessAndAccountsById() {
           key: row.id ?? index,
           dateValue,
           date: dateValue ? dateValue.format(DATE_FORMAT) : '',
-          debitor: `${row.Debitor.User.name} (${row.Debitor.User.uid})`,
+          debtor: `${row.Debtor.User.name} (${row.Debtor.User.uid})`,
 
           creditor: `${row.Creditor.User.name} (${row.Creditor.User.uid})`,
           particulars: row.particulars ?? '',
@@ -376,7 +376,7 @@ function BusinessAndAccountsById() {
 
       if (response?.data?.success === true) {
         form.resetFields()
-        lastDebitorRef.current = undefined
+        lastDebtorRef.current = undefined
         lastCreditorRef.current = undefined
         showMessage({
           type: 'success',
@@ -682,7 +682,7 @@ function BusinessAndAccountsById() {
                       {/* <div className="accounts-by-id__account-row"> */}
                       <FormItem
                         label="Debtor:"
-                        name="DebitorId"
+                        name="DebtorId"
                         rules={[{ required: true, message: 'Select Debtor' }]}
                         style={{ flex: 1, marginBottom: 0 }}
                         extra={
@@ -691,14 +691,14 @@ function BusinessAndAccountsById() {
                               <div>
                                 A/c type:{' '}
                                 {debitAccount
-                                  ? (selectedDebitor?.AccTypeMaster?.name ??
+                                  ? (selectedDebtor?.AccTypeMaster?.name ??
                                     '-')
                                   : '-'}
                               </div>
                               <div>
                                 Golden rule:{' '}
                                 {debitAccount
-                                  ? (selectedDebitor?.AccTypeMaster
+                                  ? (selectedDebtor?.AccTypeMaster
                                       ?.goldenRule ?? '-')
                                   : '-'}
                               </div>
@@ -710,7 +710,7 @@ function BusinessAndAccountsById() {
                         <Select
                           options={accountSelectOptions(creditAccount)}
                           placeholder="Select Debtor"
-                          onChange={handleDebitorChange}
+                          onChange={handleDebtorChange}
                           showSearch
                           optionFilterProp="label"
                           onSearch={(value) => onSearch(value, 'debtor')}

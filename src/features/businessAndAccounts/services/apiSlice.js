@@ -4,7 +4,7 @@ const businessAndAccountsApi = api.injectEndpoints({
   endpoints: (build) => ({
     orgs: build.query({
       query: (name) => ({
-        url: '/get-organizations',
+        url: '/api/v1/get-organizations',
         method: 'GET',
         params: name,
       }),
@@ -12,7 +12,7 @@ const businessAndAccountsApi = api.injectEndpoints({
     }),
     createOrg: build.mutation({
       query: (data) => ({
-        url: '/create-organization',
+        url: '/api/v1/create-organization',
         method: 'POST',
         body: data,
       }),

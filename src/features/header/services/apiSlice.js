@@ -4,7 +4,7 @@ const getCards = api.injectEndpoints({
   endpoints: (build) => ({
     cards: build.query({
       query: (name) => ({
-        url: '/get-cards',
+        url: '/api/v1/get-cards',
         method: 'GET',
         params: name,
       }),

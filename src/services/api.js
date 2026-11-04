@@ -77,14 +77,14 @@ export const api = createApi({
     }),
     roles: build.query({
       query: (name) => ({
-        url: '/get-roles',
+        url: '/api/v1/get-roles',
         method: 'GET',
         params: name,
       }),
     }),
     users: build.query({
       query: (name) => ({
-        url: '/get-users',
+        url: '/api/v1/get-users',
         method: 'GET',
         params: name,
       }),
@@ -92,7 +92,7 @@ export const api = createApi({
     }),
     nonAccountUsers: build.query({
       query: (name) => ({
-        url: '/get-non-account-users',
+        url: '/api/v1/get-non-account-users',
         method: 'GET',
         params: name,
       }),
@@ -100,7 +100,7 @@ export const api = createApi({
     }),
     accounts: build.query({
       query: (name) => ({
-        url: '/get-accounts',
+        url: '/api/v1/get-accounts',
         method: 'GET',
         params: name,
       }),
@@ -108,21 +108,21 @@ export const api = createApi({
     }),
     isAccountExists: build.query({
       query: (name) => ({
-        url: '/check-if-account-exists',
+        url: '/api/v1/check-if-account-exists',
         method: 'GET',
         params: name,
       }),
     }),
     isUserExists: build.query({
       query: (name) => ({
-        url: '/check-if-user-exists',
+        url: '/api/v1/check-if-user-exists',
         method: 'GET',
         params: name,
       }),
     }),
     journals: build.query({
       query: (name) => ({
-        url: '/get-journal-entries',
+        url: '/api/v1/get-journal-entries',
         method: 'GET',
         params: name,
       }),
@@ -130,7 +130,7 @@ export const api = createApi({
     }),
     bulkUploadTemplate: build.query({
       query: (name) => ({
-        url: '/download-bulk-upload-template',
+        url: '/api/v1/download-bulk-upload-template',
         method: 'GET',
         params: name,
         responseHandler: (response) => response.blob(),
@@ -138,7 +138,7 @@ export const api = createApi({
     }),
     getYearsAndMonths: build.query({
       query: (name) => ({
-        url: '/get-years-and-months',
+        url: '/api/v1/get-years-and-months',
         method: 'GET',
         params: name,
       }),
@@ -146,7 +146,7 @@ export const api = createApi({
     }),
     getKeysAndLabels: build.query({
       query: (name) => ({
-        url: '/get-keys-and-labels',
+        url: '/api/v1/get-keys-and-labels',
         method: 'GET',
         params: name,
       }),

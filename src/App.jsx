@@ -10,9 +10,10 @@ import { AuthSessionHandler } from './components/AuthSessionHandler.jsx'
 import { UnderConstruction } from './pages/UnderConstruction.jsx'
 import { BusinessAndAccounts } from './pages/BusinessAndAccounts.jsx'
 import { BusinessAndAccountsById } from './pages/BusinessAndAccountsById.jsx'
-import { Practice } from './pages/Practice.jsx';
+import { Practice } from './pages/Practice.jsx'
 import { ResetPassword } from './pages/ResetPassword.jsx'
 import { ReportsPage } from './pages/Reports.jsx'
+import { SchemaPreviewPage } from './pages/SchemaPreview.jsx'
 
 function App() {
   // const user = getLocalStorage('user')
@@ -76,6 +77,14 @@ function App() {
           <Route path="/relatives" element={<UnderConstruction />} />
           <Route path="/tasks" element={<UnderConstruction />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
+          <Route
+            path="/schemaPreview"
+            element={
+              <ProtectedRoute>
+                <SchemaPreviewPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/practice" element={<Practice />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

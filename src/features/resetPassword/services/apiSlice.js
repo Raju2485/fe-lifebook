@@ -4,7 +4,7 @@ const resetPasswordApi = api.injectEndpoints({
   endpoints: (build) => ({
     resetPassword: build.mutation({
       query: (credentials) => ({
-        url: '/reset-password',
+        url: '/api/v1/reset-password',
         method: 'POST',
         body: credentials,
       }),

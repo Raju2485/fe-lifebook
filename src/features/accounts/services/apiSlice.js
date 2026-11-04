@@ -3,7 +3,7 @@ const updateAccount = api.injectEndpoints({
   endpoints: (build) => ({
     updateAccount: build.mutation({
       query: (data) => ({
-        url: '/update-account',
+        url: '/api/v1/update-account',
         method: 'POST',
         body: data,
       }),

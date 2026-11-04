@@ -4,7 +4,7 @@ const getAccounts = api.injectEndpoints({
   endpoints: (build) => ({
     createAccount: build.mutation({
       query: (data) => ({
-        url: '/create-accounts',
+        url: '/api/v1/create-accounts',
         method: 'POST',
         body: data,
       }),
@@ -12,7 +12,7 @@ const getAccounts = api.injectEndpoints({
     }),
     postJournalEntry: build.mutation({
       query: (data) => ({
-        url: '/post-journal-entry',
+        url: '/api/v1/post-journal-entry',
         method: 'POST',
         body: data,
       }),
@@ -25,7 +25,7 @@ const getAccounts = api.injectEndpoints({
         if (orgId) formData.append('orgId', orgId)
         // return {
         return {
-          url: '/import-journals-from-excel',
+          url: '/api/v1/import-journals-from-excel',
           method: 'POST',
           body: formData,
           formData: true,

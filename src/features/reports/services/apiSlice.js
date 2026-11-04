@@ -4,14 +4,14 @@ const getCards = api.injectEndpoints({
   endpoints: (build) => ({
     cards: build.query({
       query: (name) => ({
-        url: '/get-cards',
+        url: '/api/v1/get-cards',
         method: 'GET',
         params: name,
       }),
     }),
     finalAccounts: build.query({
       query: (name) => ({
-        url: '/get-accounting-reports',
+        url: '/api/v1/get-accounting-reports',
         method: 'GET',
         params: name,
       }),
@@ -19,7 +19,7 @@ const getCards = api.injectEndpoints({
     }),
     generateAccounts: build.query({
       query: (name) => ({
-        url: '/generate-accounting-reports',
+        url: '/api/v1/generate-accounting-reports',
         method: 'GET',
         params: name,
       }),

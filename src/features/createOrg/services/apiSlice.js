@@ -4,7 +4,7 @@ const createOrgApi = api.injectEndpoints({
   endpoints: (build) => ({
     createOrg: build.mutation({
       query: (credentials) => ({
-        url: '/create-organization',
+        url: '/api/v1/create-organization',
         method: 'POST',
         body: credentials,
       }),

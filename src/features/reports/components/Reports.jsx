@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import {
   Typography,
   Button,
@@ -14,7 +13,7 @@ import {
   Dropdown,
 } from 'antd'
 const { Sider, Content } = Layout
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import {
   ReloadOutlined,
   LinkOutlined,
@@ -169,7 +168,7 @@ const { data: keysAndLabelsData } = useGetKeysAndLabelsQuery({
     />
   )
 
-  const [size, setSize] = useState('medium')
+  const [size] = useState('medium')
   const showLoadingMask = isLoading || generateAccountsLoading
 
   return (

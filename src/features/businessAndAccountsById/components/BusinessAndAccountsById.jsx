@@ -21,8 +21,6 @@ import {
   Upload,
 } from 'antd'
 
-import { getLocalStorage } from '../../../utils/localStorage'
-
 const { Item: FormItem } = Form
 import {
   DownloadOutlined,
@@ -90,14 +88,6 @@ const SAMPLE_TRANSACTIONS = [
     amount: '30000',
   },
 ]
-
-function formatAccountLabel(account) {
-  if (!account) return ''
-  if (account.User) {
-    return `${account.User.name}(${account.User.uid})`
-  }
-  return account.name ?? ''
-}
 
 function extractJournalPagination(journals) {
   return journals?.pagination ?? journals?.data?.pagination ?? null

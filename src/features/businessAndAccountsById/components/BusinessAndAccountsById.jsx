@@ -197,10 +197,7 @@ function BusinessAndAccountsById() {
     },
     { refetchOnMountOrArgChange: true }
   )
-  const [checkUserExists, { isFetching: isCheckingEmail }] =
-    useLazyIsUserExistsQuery()
-  const [checkAccountExists, { isFetching: isCheckingAccount }] =
-    useLazyIsAccountExistsQuery()
+
   const [downloadBulkUploadTemplate] = useLazyBulkUploadTemplateQuery()
   const { data: accTypes } = useAccTypesQuery()
   const { data: roles } = useRolesQuery()
@@ -217,7 +214,7 @@ function BusinessAndAccountsById() {
     }
     const stillSelected = years.find((item) => item.id === reportYear?.id)
     setReportYear(stillSelected ?? years[0])
-  }, [yearsAndMonths])
+  }, [reportYear?.id, yearsAndMonths])
 
   useEffect(() => {
     setMonths(
@@ -307,7 +304,7 @@ function BusinessAndAccountsById() {
           amount: row.amount ?? '',
         }
       }),
-    [journalRecords, currentPage]
+    [journalRecords]
   )
 
   const journalTotal = Number(journalPagination?.totalRecords) || 0
@@ -386,11 +383,6 @@ function BusinessAndAccountsById() {
     }
   }
 
-  const handleClose = () => {
-    setIsEmailTaken(false)
-    setIsNameTaken(false)
-    setOpen(false)
-  }
 
   const doesUserExist = (response) =>
     response?.data === true ||
@@ -1367,7 +1359,6 @@ function BusinessAndAccountsById() {
                         isEmailTaken ||
                         isCheckingEmail ||
                         isNameTaken ||
-                        isCheckingAccount
                       }
                     >
                       Submit

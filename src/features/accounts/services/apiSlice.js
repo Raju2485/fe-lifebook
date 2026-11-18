@@ -1,5 +1,6 @@
 import { api } from '../../../services/api'
-const updateAccount = api.injectEndpoints({
+
+api.injectEndpoints({
   endpoints: (build) => ({
     updateAccount: build.mutation({
       query: (data) => ({
@@ -11,5 +12,13 @@ const updateAccount = api.injectEndpoints({
     }),
   }),
 })
-export const { useAccountsQuery, useRolesQuery } = api
-export const { useUpdateAccountMutation } = updateAccount
+
+export const {
+  useAccountsQuery,
+  useRolesQuery,
+  useUsersQuery,
+  useAccCategoriesQuery,
+  useLazyIsAccountExistsQuery,
+  useCreateAccountMutation,
+  useUpdateAccountMutation,
+} = api

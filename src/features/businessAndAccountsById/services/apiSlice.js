@@ -37,7 +37,7 @@ const getAccounts = api.injectEndpoints({
   }),
 })
 export const {
-  useAccTypesQuery,
+  useAccCategoriesQuery,
   useRolesQuery,
   useNonAccountUsersQuery,
   useAccountsQuery,

@@ -18,7 +18,7 @@ import { CloseOutlined } from '@ant-design/icons'
 
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
 import {
-  useAccTypesQuery,
+  useAccCategoriesQuery,
   useRolesQuery,
   useCreateAccountMutation,
   useLazyIsUserExistsQuery,
@@ -35,7 +35,7 @@ function AccountFormCard({
   remove,
   canRemove,
   form,
-  accTypes,
+  accCategories,
   roles,
   orgId,
   isModalSubmitDisabled,
@@ -48,53 +48,54 @@ function AccountFormCard({
     ['users', prefix, 'isUserExisting'],
     form
   )
-  const isPerson = Form.useWatch(['users', prefix, 'isPerson'], form)
-  const isMember = Form.useWatch(['users', prefix, 'isMember'], form)
-  const accTypeId = Form.useWatch(['users', prefix, 'AccTypeId'], form)
-  const accType = accTypes?.data?.find((obj) => obj.id == accTypeId)?.name ?? ''
-  const [isEmailTaken, setIsEmailTaken] = useState(false)
+  // )
+  // const isPerson = Form.useWatch(['users', prefix, 'isPerson'], form)
+  // const isMember = Form.useWatch(['users', prefix, 'isMember'], form)
+  const accCategId = Form.useWatch(['users', prefix, 'AccCategId'], form)
+  const accCategName = accCategories?.data?.find((obj) => obj.id == accCategId)?.name?.toLowerCase() ?? ''
+  // const [isEmailTaken, setIsEmailTaken] = useState(false)
   const [isNameTaken, setIsNameTaken] = useState(false)
 
   const setNestedValue = (name, value) => {
     form.setFieldValue(['users', prefix, name], value)
   }
 
-  const handleEmailBlur = async () => {
-    const email = String(
-      form.getFieldValue(['users', prefix, 'email']) ?? ''
-    ).trim()
-    if (!email) {
-      setIsEmailTaken(false)
-      return
-    }
+  // const handleEmailBlur = async () => {
+  //   const email = String(
+  //     form.getFieldValue(['users', prefix, 'email']) ?? ''
+  //   ).trim()
+  //   if (!email) {
+  //     setIsEmailTaken(false)
+  //     return
+  //   }
 
-    try {
-      const response = await checkUserExists({ email, orgId }).unwrap()
-      if (doesUserExist(response)) {
-        setIsEmailTaken(true)
-        form.setFields([
-          {
-            name: ['users', prefix, 'email'],
-            errors: [`${email} already exists`],
-          },
-        ])
-      } else {
-        setIsEmailTaken(false)
-      }
-    } catch (error) {
-      if (doesUserExist(error?.data) || error?.status === 409) {
-        setIsEmailTaken(true)
-        form.setFields([
-          {
-            name: ['users', prefix, 'email'],
-            errors: [`${email} already exists`],
-          },
-        ])
-        return
-      }
-      setIsEmailTaken(false)
-    }
-  }
+    // try {
+    //   const response = await checkUserExists({ email, orgId }).unwrap()
+    //   if (doesUserExist(response)) {
+    //     setIsEmailTaken(true)
+    //     form.setFields([
+    //       {
+    //         name: ['users', prefix, 'email'],
+    //         errors: [`${email} already exists`],
+    //       },
+    //     ])
+    //   } else {
+    //     setIsEmailTaken(false)
+    //   }
+    // } catch (error) {
+    //   if (doesUserExist(error?.data) || error?.status === 409) {
+    //     setIsEmailTaken(true)
+    //     form.setFields([
+    //       {
+    //         name: ['users', prefix, 'email'],
+    //         errors: [`${email} already exists`],
+    //       },
+    //     ])
+    //     return
+    //   }
+    //   setIsEmailTaken(false)
+    // }
+  // }
 
   const handleNameBlur = async () => {
     const name = String(
@@ -161,24 +162,20 @@ function AccountFormCard({
           >
             <Radio.Group
               disabled={isPrefilled}
-              onChange={(e) => {
-                if (e.target.value == true) {
-                  const accTypePersonal = accTypes?.data?.find(
-                    (obj) => obj.name == 'personal'
-                  )
-                  const hasEmail = Boolean(
-                    String(
-                      form.getFieldValue(['users', prefix, 'email']) ?? ''
-                    ).trim()
-                  )
-                  setNestedValue('AccTypeId', accTypePersonal?.id)
-                  setNestedValue('isPerson', hasEmail)
-                  setNestedValue(
-                    'natureOfAccount',
-                    hasEmail ? undefined : 'bank'
-                  )
-                }
-              }}
+              // onChange={(e) => {
+              //   if (e.target.value == true) {
+              // const accCategAssetOrLiability = accCategories?.data?.find(
+              //   (obj) => obj.name.toLowerCase() == 'asset' || obj.name.toLowerCase() == 'liability'
+              // )
+              // const hasEmail = Boolean(
+              //   String(
+              //     form.getFieldValue(['users', prefix, 'email']) ?? ''
+              //   ).trim()
+              // )
+              // setNestedValue('AccCategId', accCategAssetOrLiability?.id)
+
+              //   }
+              // }}
             >
               <Radio value={true}>Existing</Radio>
               <Radio value={false}>New</Radio>
@@ -187,21 +184,23 @@ function AccountFormCard({
         </Col>
         <Col xs={24} xl={12} span={24} md={24} sm={24}>
           <FormItem
-            label="Account Type:"
-            name={[prefix, 'AccTypeId']}
+            label="Account Category:"
+            name={[prefix, 'AccCategId']}
             rules={[
               {
                 required: true,
-                message: 'Select Account Type',
+                message: 'Select Account Category',
               },
             ]}
           >
             <Select
-              placeholder="Select Account Type"
+              placeholder="Select Account Category  "
               showSearch
               optionFilterProp="label"
               onChange={(value) => {
-                const selected = accTypes?.data?.find((obj) => obj.id === value)
+                const selected = accCategories?.data?.find(
+                  (obj) => obj.id === value
+                )
                 const selectedName = selected?.name
                 if (selectedName === 'real') {
                   if (
@@ -220,7 +219,7 @@ function AccountFormCard({
                 }
               }}
               options={
-                accTypes?.data?.map((item) => ({
+                accCategories?.data?.map((item) => ({
                   value: item.id,
                   label: item.name,
                   disabled: isUserExisting && item.name != 'personal',
@@ -230,7 +229,7 @@ function AccountFormCard({
             />
           </FormItem>
         </Col>
-        {accType == 'personal' && (
+        {/* {accType == 'personal' && (
           <Col xs={24} xl={12} span={24} md={24} sm={24}>
             <FormItem
               label="Is Person?"
@@ -257,8 +256,8 @@ function AccountFormCard({
               </Radio.Group>
             </FormItem>
           </Col>
-        )}
-        {((isPerson == true && isUserExisting == false) || isPrefilled) && (
+        )} */}
+        {/* {((isPerson == true && isUserExisting == false) || isPrefilled) && (
           <Col xs={24} xl={12} span={24} md={24} sm={24}>
             <FormItem
               label="Email:"
@@ -299,10 +298,10 @@ function AccountFormCard({
               />
             </FormItem>
           </Col>
-        )}
-        {isPerson == true && isUserExisting == false && !isPrefilled && (
+        )} */}
+        {/* {isUserExisting == false && !isPrefilled && ( */}
           <>
-            <Col xs={24} xl={12} span={24} md={24} sm={24}>
+            {/* <Col xs={24} xl={12} span={24} md={24} sm={24}>
               <FormItem
                 label="Name:"
                 name={[prefix, 'name']}
@@ -315,23 +314,10 @@ function AccountFormCard({
               >
                 <Input placeholder="Enter Name" />
               </FormItem>
-            </Col>
-            <Col xs={24} xl={12} span={24} md={24} sm={24}>
-              <FormItem label="Middle Name:" name={[prefix, 'middleName']}>
-                <Input placeholder="Enter Middle Name" />
-              </FormItem>
-            </Col>
-            <Col xs={24} xl={12} span={24} md={24} sm={24}>
-              <FormItem label="Surname:" name={[prefix, 'surname']}>
-                <Input placeholder="Enter Surname" />
-              </FormItem>
-            </Col>
+            </Col> */}
           </>
-        )}
-        {(isPerson === false ||
-          accType === 'nominal' ||
-          accType === 'real' ||
-          isPrefilled) && (
+        {/* )} */}
+        
           <Col xs={24} xl={12} span={24} md={24} sm={24}>
             <FormItem
               label="Account Name:"
@@ -366,15 +352,14 @@ function AccountFormCard({
               />
             </FormItem>
           </Col>
-        )}
-        {accType == 'real' && (
+        {accCategName == 'asset' && (
           <Col xs={24} xl={12} span={24} md={24} sm={24}>
             <FormItem
               label="Nature of Account:"
               name={[prefix, 'natureOfAccount']}
             >
               <Radio.Group>
-                <Radio value={'bank'} disabled>
+                <Radio value={'bank'}>
                   Bank
                 </Radio>
                 <Radio value={'cash'}>Cash</Radio>
@@ -382,7 +367,7 @@ function AccountFormCard({
             </FormItem>
           </Col>
         )}
-        {accType == 'personal' && isPerson == false && (
+        {/* {accType == 'personal' && isPerson == false && (
           <Col xs={24} xl={12} span={24} md={24} sm={24}>
             <FormItem
               label="Nature of Account:"
@@ -400,8 +385,8 @@ function AccountFormCard({
               </Radio.Group>
             </FormItem>
           </Col>
-        )}
-        {isPerson == true && (
+        )} */}
+        {/* {isPerson == true && (
           <Col xs={24} xl={12} span={24} md={24} sm={24}>
             <FormItem
               label="Is member?"
@@ -445,7 +430,7 @@ function AccountFormCard({
               />
             </FormItem>
           </Col>
-        )}
+        )} */}
       </Row>
     </Card>
   )
@@ -460,7 +445,7 @@ function MultiUserForm({
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
   const { id } = useParams()
   const { showMessage } = useShowMessage()
-  const { data: accTypes } = useAccTypesQuery()
+  const { data: accCategories } = useAccCategoriesQuery()
   const { data: roles } = useRolesQuery()
   const [createAccount] = useCreateAccountMutation()
   const [checkUserExists] = useLazyIsUserExistsQuery()
@@ -468,7 +453,7 @@ function MultiUserForm({
 
   useEffect(() => {
     if (!multiUserFormOpen) return
-    const personalTypeId = accTypes?.data?.find(
+    const personalTypeId = accCategories?.data?.find(
       (obj) => obj.name === 'personal'
     )?.id
     const usersValue =
@@ -490,7 +475,7 @@ function MultiUserForm({
           })
         : [{}]
     form.setFieldsValue({ users: usersValue })
-  }, [multiUserFormOpen, missingAccountNames, form, accTypes])
+  }, [multiUserFormOpen, missingAccountNames, form, accCategories])
 
   const handleClose = () => {
     form.resetFields()
@@ -593,7 +578,7 @@ function MultiUserForm({
                       fields.length > 1 && missingAccountNames.length === 0
                     }
                     form={form}
-                    accTypes={accTypes}
+                    accCategories={accCategories}
                     roles={roles}
                     orgId={id}
                     isModalSubmitDisabled={isModalSubmitDisabled}

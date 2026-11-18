@@ -66,11 +66,19 @@ export const api = createApi({
     'Journals',
     'YearsAndMonths',
     'AccountingReports',
+    'OrgUsers',
   ],
   endpoints: (build) => ({
     accTypes: build.query({
       query: (name) => ({
         url: '/get-account-types',
+        method: 'GET',
+        params: name,
+      }),
+    }),
+    accCategories: build.query({
+      query: (name) => ({
+        url: '/api/v1/get-account-categories',
         method: 'GET',
         params: name,
       }),

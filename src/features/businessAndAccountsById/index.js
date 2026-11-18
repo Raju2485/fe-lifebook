@@ -1,1 +1,1 @@
-export { BusinessAndAccountsById } from './components/BusinessAndAccountsByIdcopy'
+export { BusinessAndAccountsById } from './components/BusinessAndAccountsById'

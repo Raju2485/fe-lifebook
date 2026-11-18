@@ -32,15 +32,15 @@ import TextArea from 'antd/es/input/TextArea'
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
 import {
   useRolesQuery,
-  useOrgUsersQuery,
+  useStaffQuery,
   useUsersQuery,
-  useUpdateOrgUserMutation,
-  useMapOrgUserMutation,
+  useUpdateStaffMemberMutation,
+  useMapStaffMemberMutation,
 } from '../services/apiSlice.js'
 
 import { toTitleCase } from '../../../utils/toTitleCase.js'
 
-function OrgUsers() {
+function Staff() {
   const [form] = Form.useForm()
   const [form2] = Form.useForm()
 
@@ -48,7 +48,7 @@ function OrgUsers() {
   const [pageSize, setPageSize] = useState(10)
   const [open, setOpen] = useState(false)
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
-  const [updateOrgUser] = useUpdateOrgUserMutation()
+  const [updateStaffMember] = useUpdateStaffMemberMutation()
   const { showMessage } = useShowMessage()
   const { id } = useParams()
   const [accountSearch, setAccountSearch] = useState()
@@ -75,7 +75,7 @@ function OrgUsers() {
     { orgId: id, search: userSearch },
     { refetchOnMountOrArgChange: true }
   )
-  const [mapOrgUser] = useMapOrgUserMutation()
+  const [mapStaffMember] = useMapStaffMemberMutation()
 
   const handleEdit = (row) => {
     setOpen(true)
@@ -194,7 +194,7 @@ function OrgUsers() {
       title: 'Actions',
       key: 'actions',
       render: (_, row) => (
-        <>          
+        <>
           <EditOutlined onClick={() => handleEdit(row)} />
         </>
       ),
@@ -220,7 +220,7 @@ function OrgUsers() {
       setIsModalSubmitDisabled(true)
       const values = await form2.validateFields()
 
-      const response = await mapOrgUser({ ...values, OrgId: id })
+      const response = await mapStaffMember({ ...values, OrgId: id })
 
       if (response?.data?.success === true) {
         form2.resetFields()
@@ -250,8 +250,7 @@ function OrgUsers() {
       const values = await form.validateFields()
       console.log('values = ', values)
 
-      const response = await updateOrgUser({ ...values, OrgId: id
-      })
+      const response = await updateStaffMember({ ...values, OrgId: id })
 
       if (response?.data?.success === true) {
         form.resetFields()
@@ -305,7 +304,7 @@ function OrgUsers() {
     search: roleSearch,
   })
 
-  const { data: orgUsers } = useOrgUsersQuery(
+  const { data: staff } = useStaffQuery(
     // { count: 5 },
     // This option forces a refetch on component mount
     {
@@ -321,7 +320,7 @@ function OrgUsers() {
     { value: 20, label: '20' },
     { value: 50, label: '50' },
   ]
-  const journalTotal = Number(orgUsers?.pagination?.totalRecords) || 0
+  const journalTotal = Number(staff?.pagination?.totalRecords) || 0
 
   return (
     <div className="accounts-by-id">
@@ -350,14 +349,14 @@ function OrgUsers() {
             style={{ width: '150px' }}
             onClick={handleCreateAccountModal}
           >
-            Map User
+            Add Staff Member
           </Button>
         </Flex>
         <div className="accounts-by-id__table-controls"></div>
 
         <Table
           columns={TABLE_COLUMNS}
-          dataSource={Array.isArray(orgUsers?.data) ? orgUsers.data : []}
+          dataSource={Array.isArray(staff?.data) ? staff.data : []}
           rowKey="id"
           pagination={false}
           size="middle"
@@ -486,7 +485,7 @@ function OrgUsers() {
             onFinish={onFinishCreateAccountModal}
           >
             <AntCard
-              title={'Map User to Organization'}
+              title={'Add Staff Member'}
               // className={styles.CustomPanel}
             >
               <Row gutter={24}>
@@ -586,4 +585,4 @@ function OrgUsers() {
   )
 }
 
-export { OrgUsers }
+export { Staff }

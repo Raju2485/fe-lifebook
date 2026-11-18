@@ -2,7 +2,7 @@ import { api } from '../../../services/api'
 
 api.injectEndpoints({
   endpoints: (build) => ({
-    orgUsers: build.query({
+    staff: build.query({
       query: (name) => ({
         url: '/api/v1/get-staff-members',
         method: 'GET',
@@ -10,7 +10,7 @@ api.injectEndpoints({
       }),
       providesTags: ['Staff'],
     }),
-    mapOrgUser: build.mutation({
+    mapStaffMember: build.mutation({
       query: (data) => ({
         url: '/api/v1/map-staff-member',
         method: 'POST',
@@ -18,7 +18,7 @@ api.injectEndpoints({
       }),
       invalidatesTags: ['Staff'],
     }),
-    updateOrgUser: build.mutation({
+    updateStaffMember: build.mutation({
       query: (data) => ({
         url: '/api/v1/update-staff-member',
         method: 'POST',
@@ -31,8 +31,8 @@ api.injectEndpoints({
 
 export const {
   useRolesQuery,
-  useOrgUsersQuery,
+  useStaffQuery,
   useUsersQuery,
-  useUpdateOrgUserMutation,
-  useMapOrgUserMutation,
-} = api;
+  useUpdateStaffMemberMutation,
+  useMapStaffMemberMutation,
+} = api

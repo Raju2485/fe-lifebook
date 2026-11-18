@@ -1,6 +1,5 @@
 import { useMemo, useRef, useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { Link } from 'react-router-dom'
 import {
   Button,
   DatePicker,
@@ -31,62 +30,26 @@ import dayjs from 'dayjs'
 import './BusinessAndAccountsById.scss'
 import TextArea from 'antd/es/input/TextArea'
 import { MultiUserForm } from './MultiUserForm.jsx'
-import { Accounts } from '../../accounts/components/Accounts'
+import { Accounts } from '../../accounts/components/Accounts.jsx'
+import { Staff } from '../../staff/components/Staff.jsx'
 
 import { useShowMessage } from '../../../hooks/useShowMessage.js'
 import {
   useAccountsQuery,
-  useCreateAccountMutation,
-  useAccTypesQuery,
-  useRolesQuery,
-  useNonAccountUsersQuery,
-  useLazyIsAccountExistsQuery,
-  useLazyIsUserExistsQuery,
   useJournalsQuery,
   usePostJournalEntryMutation,
   useLazyBulkUploadTemplateQuery,
   useBulkUploadMutation,
   useGetYearsAndMonthsQuery,
-} from '../services/apiSlice'
-import { useOrgsQuery } from '../../businessAndAccounts/services/apiSlice'
+} from '../services/apiSlice.js'
+import { useOrgsQuery } from '../../businessAndAccounts/services/apiSlice.js'
 
 const DATE_FORMAT = 'D-MMM-YYYY'
-const DATE_TIME_FORMAT = 'D-MMM-YYYY HH:mm:ss'
-// const ACCOUNT_OPTIONS =
-const MONTHS = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'June',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-]
-const YEAR_OPTIONS = [
-  { value: 2026, label: '2026' },
-  { value: 2025, label: '2025' },
-  { value: 2024, label: '2024' },
-]
+
 const PAGE_SIZE_OPTIONS = [
   { value: 10, label: '10' },
   { value: 20, label: '20' },
   { value: 50, label: '50' },
-]
-
-const SAMPLE_TRANSACTIONS = [
-  {
-    key: '1',
-    date: '1-Jan-2026',
-    debtor: 'Account 1',
-    creditor: 'Account 2',
-    particulars: 'Bought furniture',
-    amount: '30000',
-  },
 ]
 
 function extractJournalPagination(journals) {
@@ -122,19 +85,11 @@ const TABLE_COLUMNS = [
     title: 'Is Adjustment?',
     dataIndex: 'isAdjustment',
     key: 'isAdjustment',
-    render: (text) => text ? 'Yes' : '',
+    render: (text) => (text ? 'Yes' : ''),
   },
 ]
 
 function BusinessAndAccountsById() {
-  // const metaData = getLocalStorage('metaData')
-  // const thisOrg = metaData?.data?.find((org) => String(org.id) === String(id))
-  // const thisOrgRoles = thisOrg?.Accounts?.[0]?.isAdmin
-  //   ? 'Admin'
-  //   : currentOrg?.Accounts?.[0]?.isMember
-  //     ? 'Member'
-  //     : ''
-
   const [reportYear, setReportYear] = useState({})
   const [months, setMonths] = useState([])
   const [selectedMonth, setSelectedMonth] = useState(null)
@@ -144,15 +99,12 @@ function BusinessAndAccountsById() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const [open, setOpen] = useState(false)
   const [isModalSubmitDisabled, setIsModalSubmitDisabled] = useState(false)
-  const [isEmailTaken, setIsEmailTaken] = useState(false)
-  const [isNameTaken, setIsNameTaken] = useState(false)
+
   const [multiUserFormOpen, setMultiUserFormOpen] = useState(false)
   const [missingAccountNames, setMissingAccountNames] = useState([])
   const [bulkFileList, setBulkFileList] = useState([])
   const { showMessage } = useShowMessage()
-  const [form2] = Form.useForm()
   const [form] = Form.useForm()
   const { id, orgName } = useParams()
   const [accountSearch, setAccountSearch] = useState()
@@ -169,21 +121,16 @@ function BusinessAndAccountsById() {
   const currentOrg = orgs?.data
 
   const currentOrgRoles =
-    currentOrg?.Accounts?.[0]?.Roles?.map((role) =>
+    currentOrg?.Staffs?.[0]?.RoleMasters?.map((role) =>
       role?.name?.toLowerCase()
     ) ?? []
-
-  const isAdmin = currentOrg?.Accounts?.[0]?.isAdmin ? true : false
+  // console.log('currentOrgRoles = ', currentOrgRoles)
+  const isAdmin = currentOrg?.Staffs?.[0]?.isAdmin ? true : false
 
   if (isAdmin) {
     currentOrgRoles.push('admin')
-    currentOrgRoles.push('member')
-  } else {
-    currentOrgRoles.push('member')
   }
 
-  
-  const [createAccount] = useCreateAccountMutation()
   const [postJournalEntry] = usePostJournalEntryMutation()
   const [bulkUpload, { isLoading: isBulkUploading }] = useBulkUploadMutation()
   const { data: journals } = useJournalsQuery(
@@ -199,9 +146,7 @@ function BusinessAndAccountsById() {
   )
 
   const [downloadBulkUploadTemplate] = useLazyBulkUploadTemplateQuery()
-  const { data: accTypes } = useAccTypesQuery()
-  const { data: roles } = useRolesQuery()
-  const { data: users } = useNonAccountUsersQuery({ orgId: id })
+
   const { data: yearsAndMonths } = useGetYearsAndMonthsQuery({
     orgId: id,
     type: 'financial-reports',
@@ -218,15 +163,11 @@ function BusinessAndAccountsById() {
 
   useEffect(() => {
     setMonths(
-      yearsAndMonths?.data?.find((item) => item.id === reportYear?.id)?.months ??
-        []
+      yearsAndMonths?.data?.find((item) => item.id === reportYear?.id)
+        ?.months ?? []
     )
   }, [reportYear, yearsAndMonths])
 
-  const isMember = Form.useWatch('isMember', form2)
-  const isUserExisting = Form.useWatch('isUserExisting', form2)
-  const isPerson = Form.useWatch('isPerson', form2)
-  const accTypeId = Form.useWatch('AccTypeId', form2)
   const debitAccount = Form.useWatch('DebtorId', form)
   const creditAccount = Form.useWatch('CreditorId', form)
 
@@ -276,9 +217,6 @@ function BusinessAndAccountsById() {
     lastCreditorRef.current = value
   }
 
-  let accType = accTypes?.data?.filter((obj) => obj.id == accTypeId)
-  accType = accType ? accType?.[0]?.name : ''
-
   const accountSelectOptions = (disabledId) =>
     accounts?.data?.map((obj) => ({
       value: obj.id,
@@ -289,6 +227,8 @@ function BusinessAndAccountsById() {
   const journalPagination = extractJournalPagination(journals)
   const journalRecords = extractJournalRecords(journals)
 
+  console.log('journalRecords = ', journalRecords)
+
   const journalRows = useMemo(
     () =>
       journalRecords.map((row, index) => {
@@ -297,9 +237,9 @@ function BusinessAndAccountsById() {
           key: row.id ?? index,
           dateValue,
           date: dateValue ? dateValue.format(DATE_FORMAT) : '',
-          debtor: `${row.Debtor.User.name} (${row.Debtor.User.uid})`,
+          debtor: `${row.Debtor.name}`,
 
-          creditor: `${row.Creditor.User.name} (${row.Creditor.User.uid})`,
+          creditor: `${row.Creditor.name}`,
           particulars: row.particulars ?? '',
           amount: row.amount ?? '',
         }
@@ -344,12 +284,6 @@ function BusinessAndAccountsById() {
     }
   }
 
-  const handleCreateAccountModal = () => {
-    setIsEmailTaken(false)
-    setIsNameTaken(false)
-    setOpen(true)
-  }
-
   const handlePostJournalEntry = async (values) => {
     try {
       setIsModalSubmitDisabled(true)
@@ -383,116 +317,16 @@ function BusinessAndAccountsById() {
     }
   }
 
+  const handleClose = () => {
+    setIsEmailTaken(false)
+    setIsNameTaken(false)
+    setOpen(false)
+  }
 
   const doesUserExist = (response) =>
     response?.data === true ||
     response?.exists === true ||
     response?.data?.exists === true
-
-  const handleEmailBlur = async () => {
-    const email = String(form2.getFieldValue('email') ?? '').trim()
-    if (!email) {
-      setIsEmailTaken(false)
-      return
-    }
-
-    try {
-      const response = await checkUserExists({ email, orgId: id }).unwrap()
-      if (doesUserExist(response)) {
-        setIsEmailTaken(true)
-        form2.setFields([
-          {
-            name: 'email',
-            errors: [`${email} already exists`],
-          },
-        ])
-      } else {
-        setIsEmailTaken(false)
-      }
-    } catch (error) {
-      if (doesUserExist(error?.data) || error?.status === 409) {
-        setIsEmailTaken(true)
-        form2.setFields([
-          {
-            name: 'email',
-            errors: [`${email} already exists`],
-          },
-        ])
-        return
-      }
-      setIsEmailTaken(false)
-    }
-  }
-
-  const handleNameBlur = async () => {
-    const name = String(form2.getFieldValue('name') ?? '').trim()
-    if (!name) {
-      setIsNameTaken(false)
-      return
-    }
-
-    try {
-      const response = await checkAccountExists({ name, orgId: id }).unwrap()
-      if (doesUserExist(response)) {
-        setIsNameTaken(true)
-        form2.setFields([
-          {
-            name: 'name',
-            errors: [`${name} already exists`],
-          },
-        ])
-      } else {
-        setIsNameTaken(false)
-      }
-    } catch (error) {
-      if (doesUserExist(error?.data) || error?.status === 409) {
-        setIsNameTaken(true)
-        form2.setFields([
-          {
-            name: 'name',
-            errors: [`${name} already exists`],
-          },
-        ])
-        return
-      }
-      setIsNameTaken(false)
-    }
-  }
-
-  const onFinishModal = async () => {
-    try {
-      if (isEmailTaken || isCheckingEmail) {
-        return
-      }
-      if (isNameTaken || isCheckingAccount) {
-        return
-      }
-      setIsModalSubmitDisabled(true)
-      const values = await form2.validateFields()
-
-      const response = await createAccount({ accounts: [values], orgId: id })
-
-      if (response?.data?.success === true) {
-        form2.resetFields()
-        setIsEmailTaken(false)
-        setIsNameTaken(false)
-        setOpen(false)
-        showMessage({
-          type: 'success',
-          content: response?.data?.msg ?? 'Account created successfully!',
-        })
-      } else {
-        showMessage({
-          type: 'error',
-          content: response?.error?.data?.message ?? 'Failed to create account',
-        })
-      }
-    } catch (info) {
-      console.log('Validate Failed:', info)
-    } finally {
-      setIsModalSubmitDisabled(false)
-    }
-  }
 
   const onChange = (value) => {
     console.log(`selected ${value}`)
@@ -615,7 +449,12 @@ function BusinessAndAccountsById() {
         </span>
       </Typography.Title>
 
-      {isAdmin && <Accounts />}
+      {['admin', 'book keeper'].some((role) =>
+        currentOrgRoles.includes(role)
+      ) && <Staff />}
+      {['admin', 'book keeper'].some((role) =>
+        currentOrgRoles.includes(role)
+      ) && <Accounts />}
       {['book keeper'].some((role) => currentOrgRoles.includes(role)) && (
         <>
           <div className="accounts-by-id__top">
@@ -673,8 +512,7 @@ function BusinessAndAccountsById() {
                               <div>
                                 A/c type:{' '}
                                 {debitAccount
-                                  ? (selectedDebtor?.AccTypeMaster?.name ??
-                                    '-')
+                                  ? (selectedDebtor?.AccTypeMaster?.name ?? '-')
                                   : '-'}
                               </div>
                               <div>
@@ -818,20 +656,24 @@ function BusinessAndAccountsById() {
                     months.map((month) => (
                       <Button
                         key={month.id}
-                        type={selectedMonth === month.monthName ? 'primary' : 'default'}
+                        type={
+                          selectedMonth === month.monthName
+                            ? 'primary'
+                            : 'default'
+                        }
                         className="accounts-by-id__month-btn"
                         onClick={() => {
-                          setSelectedMonth(month.monthName) 
-                          navigate(`/reports?orgId=${id}&yearId=${reportYear.id}&monthId=${month.id}`)
+                          setSelectedMonth(month.monthName)
+                          navigate(
+                            `/reports?orgId=${id}&yearId=${reportYear.id}&monthId=${month.id}`
+                          )
                         }}
                       >
                         {month.monthName}
                       </Button>
                     ))
                   ) : (
-                    <Typography.Text>
-                      No months found
-                    </Typography.Text>
+                    <Typography.Text>No months found</Typography.Text>
                   )}
                 </div>
                 <br />
@@ -840,13 +682,13 @@ function BusinessAndAccountsById() {
               <br />
               <section className="accounts-by-id__panel accounts-by-id__reports">
                 <div className="flex">
-                  <Button
+                  {/* <Button
                     type="default"
                     className="flex-button"
                     onClick={handleCreateAccountModal}
                   >
                     Create Account
-                  </Button>
+                  </Button> */}
                   <Button
                     type="default"
                     className="flex-button"
@@ -960,423 +802,6 @@ function BusinessAndAccountsById() {
             </div>
           </section>
 
-          <Modal
-            title=""
-            open={open}
-            width="50%"
-            footer={null}
-            // className={styles.customModal}
-            closable={false}
-            onCancel={handleClose}
-          >
-            <div
-            // className={`${styles.table_row}`}
-            >
-              <Form form={form2} layout="vertical" onFinish={onFinishModal}>
-                <AntCard
-                  title={'Create Account'}
-                  // className={styles.CustomPanel}
-                >
-                  <Row gutter={24}>
-                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                      <FormItem
-                        label="Is the User existing / new:"
-                        name="isUserExisting"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Select Existing / New',
-                          },
-                        ]}
-                      >
-                        <Radio.Group
-                          onChange={(e) => {
-                            // const selectedAccType = accTypes?.data?.filter(
-                            //   (obj) => obj.id == form2.getFieldValue('AccTypeId')
-                            // );
-                            if (e.target.value == true) {
-                              const accTypePersonal = accTypes?.data?.filter(
-                                (obj) => obj.name == 'personal'
-                              )
-
-                              form2.setFieldValue(
-                                'AccTypeId',
-                                accTypePersonal?.[0]?.id
-                              )
-                              form2.setFieldValue('isPerson', true)
-                            }
-                          }}
-                        >
-                          <Radio value={true}>Existing</Radio>
-                          <Radio value={false}>New</Radio>
-                        </Radio.Group>
-                      </FormItem>
-                    </Col>
-                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                      <FormItem
-                        label="Account Type:"
-                        name="AccTypeId"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Select Account Type',
-                          },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Select Account Type"
-                          showSearch
-                          optionFilterProp="children"
-                          onSearch={(e) => onSearch(e, 'accType')}
-                          onChange={(value) => {
-                            const selected = accTypes?.data?.find(
-                              (obj) => obj.id === value
-                            )
-                            const selectedName = selected?.name
-                            if (selectedName === 'real') {
-                              if (
-                                form2.getFieldValue('natureOfAccount') ===
-                                'bank'
-                              ) {
-                                form2.setFieldValue(
-                                  'natureOfAccount',
-                                  undefined
-                                )
-                              }
-                            } else if (
-                              selectedName === 'personal' &&
-                              form2.getFieldValue('isPerson') === false
-                            ) {
-                              form2.setFieldValue('natureOfAccount', 'bank')
-                            } else {
-                              form2.setFieldValue('natureOfAccount', undefined)
-                            }
-                          }}
-                          options={
-                            accTypes?.data?.map((item) => ({
-                              value: item.id,
-                              label: item.name,
-                              disabled:
-                                isUserExisting &&
-                                item.name != 'personal' &&
-                                true,
-                            })) ?? []
-                          }
-                          disabled={isModalSubmitDisabled || isUserExisting}
-                        />
-                      </FormItem>
-                    </Col>
-                    {accType == 'personal' && (
-                      <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                        <FormItem
-                          label="Is Person?"
-                          name="isPerson"
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Select Yes / No',
-                            },
-                          ]}
-                        >
-                          <Radio.Group
-                            disabled={isUserExisting}
-                            onChange={(e) => {
-                              if (e.target.value === false) {
-                                form2.setFieldValue('natureOfAccount', 'bank')
-                              } else {
-                                form2.setFieldValue(
-                                  'natureOfAccount',
-                                  undefined
-                                )
-                              }
-                            }}
-                          >
-                            <Radio value={true}>Yes</Radio>
-                            <Radio value={false}>No</Radio>
-                          </Radio.Group>
-                        </FormItem>
-                      </Col>
-                    )}
-                    {isPerson == true && isUserExisting == false && (
-                      <>
-                        <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                          <FormItem
-                            label="Email:"
-                            name="email"
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Enter Email',
-                              },
-                              {
-                                validator: async () => {
-                                  if (isEmailTaken) {
-                                    const email = String(
-                                      form2.getFieldValue('email') ?? ''
-                                    ).trim()
-                                    return Promise.reject(
-                                      new Error(`${email} already exists`)
-                                    )
-                                  }
-
-                                  return Promise.resolve()
-                                },
-                              },
-                            ]}
-                          >
-                            <Input
-                              placeholder="Enter Email"
-                              onBlur={handleEmailBlur}
-                              onChange={() => {
-                                if (isEmailTaken) {
-                                  setIsEmailTaken(false)
-                                }
-                              }}
-                            />
-                          </FormItem>
-                        </Col>
-                        <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                          <FormItem
-                            label="Name:"
-                            name="name"
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Enter Name',
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Enter Name" />
-                          </FormItem>
-                        </Col>
-
-                        <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                          <FormItem label="Middle Name:" name="middleName">
-                            <Input placeholder="Enter Middle Name" />
-                          </FormItem>
-                        </Col>
-                        <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                          <FormItem label="Surname:" name="surname">
-                            <Input placeholder="Enter Surname" />
-                          </FormItem>
-                        </Col>
-                      </>
-                    )}
-                    {(isPerson === false ||
-                      accType === 'nominal' ||
-                      accType === 'real') && (
-                      <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                        <FormItem
-                          label="Account Name:"
-                          name="name"
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Enter Account Name',
-                            },
-                            {
-                              validator: async () => {
-                                if (isNameTaken) {
-                                  const name = String(
-                                    form2.getFieldValue('name') ?? ''
-                                  ).trim()
-                                  return Promise.reject(
-                                    new Error(`${name} already exists`)
-                                  )
-                                }
-
-                                return Promise.resolve()
-                              },
-                            },
-                          ]}
-                        >
-                          <Input
-                            placeholder="Enter Account Name"
-                            onBlur={handleNameBlur}
-                            onChange={() => {
-                              if (isNameTaken) {
-                                setIsNameTaken(false)
-                              }
-                            }}
-                          />
-                        </FormItem>
-                      </Col>
-                    )}
-                    {accType == 'real' && (
-                      <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                        <FormItem
-                          label="Nature of Account:"
-                          name="natureOfAccount"
-                        >
-                          <Radio.Group>
-                            <Radio value={'bank'} disabled>
-                              Bank
-                            </Radio>
-                            <Radio value={'cash'}>Cash</Radio>
-                          </Radio.Group>
-                        </FormItem>
-                      </Col>
-                    )}
-                    {accType == 'personal' && isPerson == false && (
-                      <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                        <FormItem
-                          label="Nature of Account:"
-                          name="natureOfAccount"
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Select Bank / Cash',
-                            },
-                          ]}
-                        >
-                          <Radio.Group disabled={true}>
-                            <Radio value={'bank'}>Bank</Radio>
-                            <Radio value={'cash'}>Cash</Radio>
-                          </Radio.Group>
-                        </FormItem>
-                      </Col>
-                    )}
-                    {isUserExisting && (
-                      <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                        <FormItem
-                          label="User:"
-                          name="UserId"
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Select User',
-                            },
-                          ]}
-                        >
-                          <Select
-                            placeholder="Select User"
-                            showSearch
-                            optionLabelProp="displayName"
-                            filterOption={(input, option) =>
-                              String(option?.searchText ?? '')
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            onSearch={(value) => onSearch(value, 'user')}
-                            onChange={(e) => onChange(e, 'user')}
-                            disabled={isModalSubmitDisabled}
-                            options={
-                              users?.data?.map((item) => ({
-                                value: item.id,
-                                displayName: `${item.name} (${item.uid})`,
-                                searchText: `${item.name} ${item.uid} ${item.email ?? ''}`,
-                                label: (
-                                  <div className="accounts-by-id__user-option">
-                                    <div>{`${item.name} (${item.uid})`}</div>
-                                    <div className="accounts-by-id__user-option-email">
-                                      {item.email}
-                                    </div>
-                                  </div>
-                                ),
-                              })) ?? []
-                            }
-                          />
-                        </FormItem>
-                      </Col>
-                    )}
-                    {isPerson == true && (
-                      <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                        <FormItem
-                          label="Is member?"
-                          name="isMember"
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Select Yes / No',
-                            },
-                          ]}
-                        >
-                          <Radio.Group
-                            onChange={(e) => {
-                              if (e.target.value === false) {
-                                form2.setFieldsValue({ RolesIds: undefined })
-                              }
-                            }}
-                          >
-                            <Radio value={true}>Yes</Radio>
-                            <Radio value={false}>No</Radio>
-                          </Radio.Group>
-                        </FormItem>
-                      </Col>
-                    )}
-                    {isMember && (
-                      <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                        <FormItem label="Roles:" name="RolesIds">
-                          <Select
-                            mode="multiple"
-                            allowClear
-                            placeholder="Select Role(s)"
-                            showSearch
-                            optionFilterProp="children"
-                            onSearch={(e) => onSearch(e, 'roles')}
-                            onChange={(e) => onChange(e, 'roles')}
-                            disabled={isModalSubmitDisabled}
-                            options={
-                              roles?.data?.map((item) => ({
-                                value: item.id,
-                                label: item.name,
-                              })) ?? []
-                            }
-                          />
-                        </FormItem>
-                      </Col>
-                    )}
-
-                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                      <FormItem
-                        label="Is Adjustment Account?"
-                        name="isAdjustAcc"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Select Yes / No',
-                          },
-                        ]}
-                      >
-                        <Radio.Group>
-                          <Radio value={true}>Yes</Radio>
-                          <Radio value={false}>No</Radio>
-                        </Radio.Group>
-                      </FormItem>
-                    </Col>
-                  </Row>
-                </AntCard>
-
-                <FormItem className="text-center">
-                  <Space>
-                    <Button
-                      // className={styles.inwardButton}
-                      htmlType="submit"
-                      type="primary"
-                      size="medium"
-                      disabled={
-                        isModalSubmitDisabled ||
-                        isEmailTaken ||
-                        isCheckingEmail ||
-                        isNameTaken ||
-                      }
-                    >
-                      Submit
-                    </Button>
-                    <Button
-                      // className={styles.inwardButton}
-                      onClick={handleClose}
-                      type="primary"
-                      ghost
-                      size="medium"
-                    >
-                      Close
-                    </Button>
-                  </Space>
-                </FormItem>
-              </Form>
-            </div>
-          </Modal>
           {multiUserFormOpen && (
             <MultiUserForm
               multiUserFormOpen={multiUserFormOpen}

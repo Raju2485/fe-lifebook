@@ -121,11 +121,11 @@ function BusinessAndAccountsById() {
   const currentOrg = orgs?.data
 
   const currentOrgRoles =
-    currentOrg?.Staffs?.[0]?.RoleMasters?.map((role) =>
+    currentOrg?.StaffJs?.[0]?.RolesMs?.map((role) =>
       role?.name?.toLowerCase()
     ) ?? []
-  // console.log('currentOrgRoles = ', currentOrgRoles)
-  const isAdmin = currentOrg?.Staffs?.[0]?.isAdmin ? true : false
+  console.log('currentOrgRoles = ', currentOrgRoles)
+  const isAdmin = currentOrg?.StaffJs?.[0]?.isAdmin ? true : false
 
   if (isAdmin) {
     currentOrgRoles.push('admin')

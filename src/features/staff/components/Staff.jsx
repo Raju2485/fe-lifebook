@@ -21,9 +21,6 @@ const { Item: FormItem } = Form
 import {
   SearchOutlined,
   EditOutlined,
-  LinkOutlined,
-  UserOutlined,
-  EyeOutlined,
 } from '@ant-design/icons'
 
 import './Accounts.scss'
@@ -82,7 +79,7 @@ function Staff() {
     form.setFieldsValue({
       id: row?.id,
       isActive: row?.isActive,
-      RolesIds: row?.RoleMasters?.map((role) => role.id) ?? [],
+      RolesIds: row?.RolesMs?.map((role) => role.id) ?? [],
     })
   }
 
@@ -142,8 +139,8 @@ function Staff() {
       title: 'Roles',
       key: 'roles',
       render: (_, row) => {
-        return row?.RoleMasters?.length > 0
-          ? row.RoleMasters.map((role) => (
+        return row?.RolesMs?.length > 0
+          ? row.RolesMs.map((role) => (
               <span
                 key={role.name}
                 style={{
@@ -234,7 +231,7 @@ function Staff() {
       } else {
         showMessage({
           type: 'error',
-          content: response?.error?.data?.message ?? 'Failed to create account',
+          content: response?.error?.data?.msg ?? 'Failed to create account',
         })
       }
     } catch (info) {
@@ -262,7 +259,7 @@ function Staff() {
       } else {
         showMessage({
           type: 'error',
-          content: response?.error?.data?.message ?? 'Failed to update account',
+          content: response?.error?.data?.msg ?? 'Failed to update account',
         })
       }
     } catch (info) {
@@ -299,10 +296,10 @@ function Staff() {
     }
   }
 
-  const { data: roles } = useRolesQuery({
-    refetchOnMountOrArgChange: true,
-    search: roleSearch,
-  })
+  const { data: roles } = useRolesQuery(
+    { search: roleSearch },
+    { refetchOnMountOrArgChange: true }
+  )
 
   const { data: staff } = useStaffQuery(
     // { count: 5 },
@@ -417,10 +414,9 @@ function Staff() {
                         mode="multiple"
                         allowClear
                         placeholder="Select Role(s)"
-                        showSearch
-                        optionFilterProp="children"
-                        onSearch={(e) => onSearch(e, 'roles')}
-                        onChange={(e) => onChange(e, 'roles')}
+                        showSearch={{
+                          optionFilterProp: 'label',
+                        }}
                         disabled={isModalSubmitDisabled}
                         options={
                           roles?.data?.map((item) => ({

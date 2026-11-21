@@ -151,7 +151,7 @@ function Accounts() {
       title: 'Account Category',
       key: 'accountCategory',
       render: (_, row) =>
-        row?.AccCateg ? `${toTitleCase(row?.AccCateg?.name)}` : '',
+        row?.AccCategsM ? `${toTitleCase(row?.AccCategsM?.name)}` : '',
     },
     // {
     //   title: 'Roles',
@@ -569,8 +569,8 @@ function Accounts() {
               },
               {
                 title: 'Account Category',
-                dataIndex: 'AccCategId',
-                render: (_, row) => row?.AccCateg?.name ?? '',
+                dataIndex: 'AccCategsM_Id',
+                render: (_, row) => row?.AccCategsM?.name ?? '',
               },
               {
                 title: 'User Name',
@@ -705,7 +705,7 @@ function Accounts() {
                     <Radio.Group
                       onChange={(e) => {
                         if (e.target.value === true) {
-                          form2.setFieldValue('AccCategId', undefined)
+                          form2.setFieldValue('AccCategsM_Id', undefined)
                         }
                       }}
                     >
@@ -717,7 +717,7 @@ function Accounts() {
                 <Col xs={24} xl={12} span={24} md={24} sm={24}>
                   <FormItem
                     label="Account Category:"
-                    name="AccCategId"
+                    name="AccCategsM_Id"
                     rules={[
                       {
                         required: true,
@@ -837,8 +837,8 @@ function Accounts() {
                   <Col xs={24} xl={12} span={24} md={24} sm={24}>
                     <FormItem label="Nature of Account:" name="natureOfAccount">
                       <Radio.Group>
-                        <Radio value={'bank'}>Bank</Radio>
-                        <Radio value={'cash'}>Cash</Radio>
+                        <Radio value={'Bank'}>Bank</Radio>
+                        <Radio value={'Cash'}>Cash</Radio>
                       </Radio.Group>
                     </FormItem>
                   </Col>

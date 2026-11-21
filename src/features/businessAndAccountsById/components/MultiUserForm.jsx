@@ -51,7 +51,7 @@ function AccountFormCard({
   // )
   // const isPerson = Form.useWatch(['users', prefix, 'isPerson'], form)
   // const isMember = Form.useWatch(['users', prefix, 'isMember'], form)
-  const accCategId = Form.useWatch(['users', prefix, 'AccCategId'], form)
+  const accCategId = Form.useWatch(['users', prefix, 'AccCategsM_Id'], form)
   const accCategName = accCategories?.data?.find((obj) => obj.id == accCategId)?.name?.toLowerCase() ?? ''
   // const [isEmailTaken, setIsEmailTaken] = useState(false)
   const [isNameTaken, setIsNameTaken] = useState(false)
@@ -149,7 +149,7 @@ function AccountFormCard({
       }
     >
       <Row gutter={24}>
-        <Col xs={24} xl={12} span={24} md={24} sm={24}>
+        {/* <Col xs={24} xl={12} span={24} md={24} sm={24}>
           <FormItem
             label="Is the User existing / new:"
             name={[prefix, 'isUserExisting']}
@@ -181,11 +181,11 @@ function AccountFormCard({
               <Radio value={false}>New</Radio>
             </Radio.Group>
           </FormItem>
-        </Col>
+        </Col> */}
         <Col xs={24} xl={12} span={24} md={24} sm={24}>
           <FormItem
             label="Account Category:"
-            name={[prefix, 'AccCategId']}
+            name={[prefix, 'AccCategsM_Id']}
             rules={[
               {
                 required: true,
@@ -196,33 +196,34 @@ function AccountFormCard({
             <Select
               placeholder="Select Account Category  "
               showSearch
-              optionFilterProp="label"
-              onChange={(value) => {
-                const selected = accCategories?.data?.find(
-                  (obj) => obj.id === value
-                )
-                const selectedName = selected?.name
-                if (selectedName === 'real') {
-                  if (
-                    form.getFieldValue(['users', prefix, 'natureOfAccount']) ===
-                    'bank'
-                  ) {
-                    setNestedValue('natureOfAccount', undefined)
-                  }
-                } else if (
-                  selectedName === 'personal' &&
-                  form.getFieldValue(['users', prefix, 'isPerson']) === false
-                ) {
-                  setNestedValue('natureOfAccount', 'bank')
-                } else {
-                  setNestedValue('natureOfAccount', undefined)
-                }
-              }}
+              // onChange={(value) => {
+              // const selected = accCategories?.data?.find(
+              //   (obj) => obj.id === value
+              // )
+              // const selectedName = selected?.name
+              // if (selectedName === 'real') {
+              //   if (
+              //     form.getFieldValue(['users', prefix, 'natureOfAccount']) ===
+              //     'bank'
+              //   ) {
+              //     setNestedValue('natureOfAccount', undefined)
+              //   }
+              // } else if (
+              //   selectedName === 'personal' &&
+              //   form.getFieldValue(['users', prefix, 'isPerson']) === false
+              // ) {
+              //   setNestedValue('natureOfAccount', 'bank')
+              // } else {
+              //   setNestedValue('natureOfAccount', undefined)
+              // }
+              // }}
               options={
                 accCategories?.data?.map((item) => ({
                   value: item.id,
                   label: item.name,
-                  disabled: isUserExisting && item.name != 'personal',
+                  disabled: isUserExisting
+                    ? !['asset', 'liability'].includes(item.name?.toLowerCase())
+                    : false,
                 })) ?? []
               }
               disabled={isModalSubmitDisabled || isUserExisting}
@@ -300,8 +301,8 @@ function AccountFormCard({
           </Col>
         )} */}
         {/* {isUserExisting == false && !isPrefilled && ( */}
-          <>
-            {/* <Col xs={24} xl={12} span={24} md={24} sm={24}>
+        <>
+          {/* <Col xs={24} xl={12} span={24} md={24} sm={24}>
               <FormItem
                 label="Name:"
                 name={[prefix, 'name']}
@@ -315,54 +316,52 @@ function AccountFormCard({
                 <Input placeholder="Enter Name" />
               </FormItem>
             </Col> */}
-          </>
+        </>
         {/* )} */}
-        
-          <Col xs={24} xl={12} span={24} md={24} sm={24}>
-            <FormItem
-              label="Account Name:"
-              name={[prefix, 'name']}
-              rules={[
-                {
-                  required: true,
-                  message: 'Enter Account Name',
-                },
-                {
-                  validator: async () => {
-                    if (isNameTaken) {
-                      const name = String(
-                        form.getFieldValue(['users', prefix, 'name']) ?? ''
-                      ).trim()
-                      return Promise.reject(new Error(`${name} already exists`))
-                    }
-                    return Promise.resolve()
-                  },
-                },
-              ]}
-            >
-              <Input
-                placeholder="Enter Account Name"
-                disabled={isPrefilled}
-                onBlur={isPrefilled ? undefined : handleNameBlur}
-                onChange={() => {
+
+        <Col xs={24} xl={12} span={24} md={24} sm={24}>
+          <FormItem
+            label="Account Name:"
+            name={[prefix, 'name']}
+            rules={[
+              {
+                required: true,
+                message: 'Enter Account Name',
+              },
+              {
+                validator: async () => {
                   if (isNameTaken) {
-                    setIsNameTaken(false)
+                    const name = String(
+                      form.getFieldValue(['users', prefix, 'name']) ?? ''
+                    ).trim()
+                    return Promise.reject(new Error(`${name} already exists`))
                   }
-                }}
-              />
-            </FormItem>
-          </Col>
-        {accCategName == 'asset' && (
+                  return Promise.resolve()
+                },
+              },
+            ]}
+          >
+            <Input
+              placeholder="Enter Account Name"
+              disabled={isPrefilled}
+              onBlur={isPrefilled ? undefined : handleNameBlur}
+              onChange={() => {
+                if (isNameTaken) {
+                  setIsNameTaken(false)
+                }
+              }}
+            />
+          </FormItem>
+        </Col>
+        {accCategName?.toLowerCase() == 'asset' && (
           <Col xs={24} xl={12} span={24} md={24} sm={24}>
             <FormItem
               label="Nature of Account:"
               name={[prefix, 'natureOfAccount']}
             >
               <Radio.Group>
-                <Radio value={'bank'}>
-                  Bank
-                </Radio>
-                <Radio value={'cash'}>Cash</Radio>
+                <Radio value={'Bank'}>Bank</Radio>
+                <Radio value={'Cash'}>Cash</Radio>
               </Radio.Group>
             </FormItem>
           </Col>

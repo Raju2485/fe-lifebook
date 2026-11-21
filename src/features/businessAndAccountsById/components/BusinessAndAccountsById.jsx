@@ -178,49 +178,49 @@ function BusinessAndAccountsById() {
   const lastDebtorRef = useRef()
   const lastCreditorRef = useRef()
 
-  const getAccountTypeName = (accountId) => {
-    const account = accounts?.data?.find((obj) => obj.id == accountId)
-    return String(account?.AccTypeMaster?.name ?? '').toLowerCase()
-  }
+  // const getAccountTypeName = (accountId) => {
+  //   const account = accounts?.data?.find((obj) => obj.id == accountId)
+  //   return String(account?.AccTypeMaster?.name ?? '').toLowerCase()
+  // }
 
-  const isRestrictedPair = (firstId, secondId) => {
-    const firstType = getAccountTypeName(firstId)
-    const secondType = getAccountTypeName(secondId)
-    if (!firstType || !secondType) return false
-    return (
-      (firstType === 'real' && secondType === 'real') ||
-      (firstType === 'nominal' && secondType === 'nominal')
-    )
-  }
+  // const isRestrictedPair = (firstId, secondId) => {
+  //   const firstType = getAccountTypeName(firstId)
+  //   const secondType = getAccountTypeName(secondId)
+  //   if (!firstType || !secondType) return false
+  //   return (
+  //     (firstType === 'real' && secondType === 'real') ||
+  //     (firstType === 'nominal' && secondType === 'nominal')
+  //   )
+  // }
 
   const navigate = useNavigate()
 
-  const handleDebtorChange = (value) => {
-    if (isRestrictedPair(value, form.getFieldValue('CreditorId'))) {
-      Modal.warning({
-        title: "Debtor and Creditor can't be real accounts / nominal accounts",
-      })
-      form.setFieldValue('DebtorId', lastDebtorRef.current)
-      return
-    }
-    lastDebtorRef.current = value
-  }
+  // const handleDebtorChange = (value) => {
+  //   if (isRestrictedPair(value, form.getFieldValue('CreditorId'))) {
+  //     Modal.warning({
+  //       title: "Debtor and Creditor can't be real accounts / nominal accounts",
+  //     })
+  //     form.setFieldValue('DebtorId', lastDebtorRef.current)
+  //     return
+  //   }
+  //   lastDebtorRef.current = value
+  // }
 
-  const handleCreditorChange = (value) => {
-    if (isRestrictedPair(form.getFieldValue('DebtorId'), value)) {
-      Modal.warning({
-        title: "Debtor and Creditor can't be real accounts / nominal accounts",
-      })
-      form.setFieldValue('CreditorId', lastCreditorRef.current)
-      return
-    }
-    lastCreditorRef.current = value
-  }
+  // const handleCreditorChange = (value) => {
+  //   if (isRestrictedPair(form.getFieldValue('DebtorId'), value)) {
+  //     Modal.warning({
+  //       title: "Debtor and Creditor can't be real accounts / nominal accounts",
+  //     })
+  //     form.setFieldValue('CreditorId', lastCreditorRef.current)
+  //     return
+  //   }
+  //   lastCreditorRef.current = value
+  // }
 
   const accountSelectOptions = (disabledId) =>
     accounts?.data?.map((obj) => ({
       value: obj.id,
-      label: obj?.User ? `${obj.User.name}(${obj.User.uid})` : '',
+      label: obj?.name ?? '',
       disabled: disabledId != null && obj.id === disabledId,
     })) ?? []
 
@@ -297,8 +297,8 @@ function BusinessAndAccountsById() {
 
       if (response?.data?.success === true) {
         form.resetFields()
-        lastDebtorRef.current = undefined
-        lastCreditorRef.current = undefined
+        // lastDebtorRef.current = undefined
+        // lastCreditorRef.current = undefined
         showMessage({
           type: 'success',
           content: response?.data?.msg ?? 'Journal entry posted successfully!',
@@ -317,20 +317,20 @@ function BusinessAndAccountsById() {
     }
   }
 
-  const handleClose = () => {
-    setIsEmailTaken(false)
-    setIsNameTaken(false)
-    setOpen(false)
-  }
+  // const handleClose = () => {
+  //   setIsEmailTaken(false)
+  //   setIsNameTaken(false)
+  //   setOpen(false)
+  // }
 
-  const doesUserExist = (response) =>
-    response?.data === true ||
-    response?.exists === true ||
-    response?.data?.exists === true
+  // const doesUserExist = (response) =>
+  //   response?.data === true ||
+  //   response?.exists === true ||
+  //   response?.data?.exists === true
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`)
-  }
+  // const onChange = (value) => {
+  //   console.log(`selected ${value}`)
+  // }
 
   const onSearch = async (value, type) => {
     console.log('search:', value, type)
@@ -510,16 +510,16 @@ function BusinessAndAccountsById() {
                           <>
                             <div className="accounts-by-id__account-meta">
                               <div>
-                                A/c type:{' '}
+                                A/c Category:{' '}
                                 {debitAccount
-                                  ? (selectedDebtor?.AccTypeMaster?.name ?? '-')
+                                  ? (selectedDebtor?.AccCategsM?.name ?? '-')
                                   : '-'}
                               </div>
                               <div>
-                                Golden rule:{' '}
+                                Debit Credit Rule:{' '}
                                 {debitAccount
-                                  ? (selectedDebtor?.AccTypeMaster
-                                      ?.goldenRule ?? '-')
+                                  ? (selectedDebtor?.AccCategsM
+                                      ?.debitCreditRule ?? '-')
                                   : '-'}
                               </div>
                             </div>
@@ -530,10 +530,13 @@ function BusinessAndAccountsById() {
                         <Select
                           options={accountSelectOptions(creditAccount)}
                           placeholder="Select Debtor"
-                          onChange={handleDebtorChange}
-                          showSearch
-                          optionFilterProp="label"
-                          onSearch={(value) => onSearch(value, 'debtor')}
+                          // onChange={handleDebtorChange}
+                          showSearch={{
+                            onSearch: (value) => onSearch(value, 'debtor'),
+                            filterOption: false,
+                          }}
+                          // optionFilterProp="label"
+                          // onSearch={(value) => onSearch(value, 'debtor')}
                         />
                       </FormItem>
                       {/* </div> */}
@@ -548,17 +551,16 @@ function BusinessAndAccountsById() {
                           <>
                             <div className="accounts-by-id__account-meta">
                               <div>
-                                A/c type:{' '}
+                                A/c Category:{' '}
                                 {creditAccount
-                                  ? (selectedCreditor?.AccTypeMaster?.name ??
-                                    '-')
+                                  ? (selectedCreditor?.AccCategsM?.name ?? '-')
                                   : '-'}
                               </div>
                               <div>
-                                Golden rule:{' '}
+                                Debit Credit Rule:{' '}
                                 {creditAccount
-                                  ? (selectedCreditor?.AccTypeMaster
-                                      ?.goldenRule ?? '-')
+                                  ? (selectedCreditor?.AccCategsM
+                                      ?.debitCreditRule ?? '-')
                                   : '-'}
                               </div>
                             </div>
@@ -569,10 +571,13 @@ function BusinessAndAccountsById() {
                         <Select
                           options={accountSelectOptions(debitAccount)}
                           placeholder="Select Creditor"
-                          onChange={handleCreditorChange}
-                          showSearch
-                          optionFilterProp="label"
-                          onSearch={(value) => onSearch(value, 'creditor')}
+                          // onChange={handleCreditorChange}
+                          showSearch={{
+                            onSearch: (value) => onSearch(value, 'creditor'),
+                            filterOption: false,
+                          }}
+                          // optionFilterProp="label"
+                          // onSearch={(value) => onSearch(value, 'creditor')}
                         />
                       </FormItem>
                     </Col>
@@ -682,13 +687,6 @@ function BusinessAndAccountsById() {
               <br />
               <section className="accounts-by-id__panel accounts-by-id__reports">
                 <div className="flex">
-                  {/* <Button
-                    type="default"
-                    className="flex-button"
-                    onClick={handleCreateAccountModal}
-                  >
-                    Create Account
-                  </Button> */}
                   <Button
                     type="default"
                     className="flex-button"

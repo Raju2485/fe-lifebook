@@ -153,55 +153,6 @@ function Accounts() {
       render: (_, row) =>
         row?.AccCategsM ? `${toTitleCase(row?.AccCategsM?.name)}` : '',
     },
-    // {
-    //   title: 'Roles',
-    //   key: 'roles',
-    //   render: (_, row) => {
-    //     return row?.Roles?.length > 0
-    //       ? row.Roles.map((role) => (
-    //           <span
-    //             key={role.name}
-    //             style={{
-    //               padding: '5px',
-    //               border: '1px solid red',
-    //               borderRadius: '5px',
-    //               marginRight: '5px',
-    //             }}
-    //           >
-    //             {toTitleCase(role.name)}
-    //           </span>
-    //         ))
-    //       : ''
-    //   },
-    // },
-    // {
-    //   title: 'Is Active?',
-    //   key: 'handle',
-    //   render: (_, row) => row?.isActive ?
-    //     <span
-    //             key={row.id}
-    //             style={{
-    //               padding: '5px',
-    //               border: '1px solid green',
-    //               borderRadius: '5px',
-    //               marginRight: '5px',
-    //             }}
-    //           >
-    //             Yes
-    //           </span>
-    // : <span
-    //             key={row.id}
-    //             style={{
-    //               padding: '5px',
-    //               border: '1px solid red',
-    //               borderRadius: '5px',
-    //               marginRight: '5px',
-    //             }}
-    //           >
-    //             No
-    //           </span>,
-    // },
-
     {
       title: 'Actions',
       key: 'actions',
@@ -495,59 +446,6 @@ function Accounts() {
               </Space>
             </FormItem>
           </Form>
-          {/* <Form form={form} layout="vertical" onFinish={onFinishModal}>
-            <AntCard
-              title={'Update Account'}
-              // className={styles.CustomPanel}
-            >
-              <Row gutter={24}>
-                <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                  <Form.Item name="id" hidden>
-                    <Input type="hidden" />
-                  </Form.Item>
-                  <FormItem label="Roles:" name="RolesIds">
-                    <Select
-                      mode="multiple"
-                      allowClear
-                      placeholder="Select Role(s)"
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={false}
-                      onSearch={handleSearch}
-                      disabled={isModalSubmitDisabled}
-                      options={(roles?.data ?? []).map((item) => ({
-                        value: item.id,
-                        label: item.name,
-                      }))}
-                    />
-                  </FormItem>
-                </Col>
-              </Row>
-            </AntCard>
-
-            <FormItem className="text-center">
-              <Space>
-                <Button
-                  // className={styles.inwardButton}
-                  htmlType="submit"
-                  type="primary"
-                  size="medium"
-                  disabled={isModalSubmitDisabled}
-                >
-                  Submit
-                </Button>
-                <Button
-                  // className={styles.inwardButton}
-                  onClick={handleClose}
-                  type="primary"
-                  ghost
-                  size="medium"
-                >
-                  Close
-                </Button>
-              </Space>
-            </FormItem>
-          </Form> */}
         </div>
       </Modal>
 
@@ -608,65 +506,6 @@ function Accounts() {
               Close
             </Button>
           </div>
-
-          {/* <Form
-            layout="vertical"
-            key={account?.id}
-            initialValues={{
-              name: account?.User?.name ?? '',
-              AccCategId: account?.AccCateg?.name ?? '',
-              userName: account?.User?.name ?? '',
-              userHandle: account?.User?.handle ?? '',
-            }}
-          >
-            <AntCard
-              title={'Account Details'}
-              // className={styles.CustomPanel}
-            >
-              <Row gutter={24}>
-                <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                  <FormItem label="Account Name:" name="name">
-                    <Input disabled />
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row gutter={24}>
-                <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                  <FormItem label="Account Category:" name="AccCategId">
-                    <Input disabled />
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row gutter={24}>
-                <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                  <FormItem label="User Name:" name="userName">
-                    <Input disabled />
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row gutter={24}>
-                <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                  <FormItem label="User Handle:" name="userHandle">
-                    <Input disabled />
-                  </FormItem>
-                </Col>
-              </Row>
-            </AntCard>
-
-            <FormItem className="text-center">
-              <Space>
-                <Button
-                  // className={styles.inwardButton}
-                  onClick={() => setAccountViewModalOpen(false)}
-                  type="primary"
-                  ghost
-                  size="medium"
-                >
-                  Close
-                </Button>
-              </Space>
-            </FormItem>
-          </Form> */}
         </div>
       </Modal>
       <Modal
@@ -728,7 +567,6 @@ function Accounts() {
                     <Select
                       placeholder="Select Account Category"
                       showSearch
-                      optionFilterProp="children"
                       onChange={(value) => {
                         const selectedCategory = accCategories?.data?.find(
                           (obj) => obj.id === value
@@ -843,30 +681,6 @@ function Accounts() {
                     </FormItem>
                   </Col>
                 )}
-                {/* {isUserExisting == true &&
-                  (selectedAccCateg == 'asset' ||
-                    selectedAccCateg == 'liability') && (
-                    <Col xs={24} xl={12} span={24} md={24} sm={24}>
-                      <FormItem label="Roles:" name="RolesIds">
-                        <Select
-                          mode="multiple"
-                          allowClear
-                          placeholder="Select Role(s)"
-                          showSearch
-                          optionFilterProp="children"
-                          onSearch={(e) => onSearch(e, 'roles')}
-                          onChange={(e) => onChange(e, 'roles')}
-                          disabled={isModalSubmitDisabled}
-                          options={
-                            roles?.data?.map((item) => ({
-                              value: item.id,
-                              label: item.name,
-                            })) ?? []
-                          }
-                        />
-                      </FormItem>
-                    </Col>
-                  )} */}
               </Row>
             </AntCard>
 
